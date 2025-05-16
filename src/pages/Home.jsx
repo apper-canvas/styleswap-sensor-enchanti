@@ -265,6 +265,7 @@ const items = [];
                     List Your Clothes
                   </button>
                 </div>
+              </div>
             </div>
           </div>
         </section>
