@@ -456,7 +456,7 @@ export default function Browse() {
                     className="w-full flex justify-between items-center mb-3 hover:text-primary"
                     onClick={() => toggleSection('categories')}
                   >
-                    <h3 className="font-medium text-base">Categories</h3>
+                    <h3 className="font-medium text-sm">Categories</h3>
                     <ChevronDownIcon className={`w-5 h-5 transition-transform ${collapsedSections.categories ? 'rotate-180' : ''}`} />
                   </button>
 
@@ -485,7 +485,7 @@ export default function Browse() {
                     className="w-full flex justify-between items-center mb-3 hover:text-primary"
                     onClick={() => toggleSection('price')}
                   >
-                    <h3 className="font-medium text-base">Price Range</h3>
+                    <h3 className="font-medium text-sm">Price Range</h3>
                     <ChevronDownIcon className={`w-5 h-5 transition-transform ${collapsedSections.price ? 'rotate-180' : ''}`} />
                   </button>
 
@@ -533,7 +533,7 @@ export default function Browse() {
                     className="w-full flex justify-between items-center mb-3 hover:text-primary"
                     onClick={() => toggleSection('sizes')}
                   >
-                    <h3 className="font-medium text-base">Sizes</h3>
+                    <h3 className="font-medium text-sm">Sizes</h3>
                     <ChevronDownIcon className={`w-5 h-5 transition-transform ${collapsedSections.sizes ? 'rotate-180' : ''}`} />
                   </button>
 
@@ -561,7 +561,7 @@ export default function Browse() {
                     className="w-full flex justify-between items-center mb-3 hover:text-primary"
                     onClick={() => toggleSection('designers')}
                   >
-                    <h3 className="font-medium text-base">Designers</h3>
+                    <h3 className="font-medium text-sm">Designers</h3>
                     <ChevronDownIcon className={`w-5 h-5 transition-transform ${collapsedSections.designers ? 'rotate-180' : ''}`} />
                   </button>
 
@@ -589,7 +589,7 @@ export default function Browse() {
                     className="w-full flex justify-between items-center mb-3 hover:text-primary"
                     onClick={() => toggleSection('colors')}
                   >
-                    <h3 className="font-medium text-base">Colors</h3>
+                    <h3 className="font-medium text-sm">Colors</h3>
                     <ChevronDownIcon className={`w-5 h-5 transition-transform ${collapsedSections.colors ? 'rotate-180' : ''}`} />
                   </button>
 
@@ -719,7 +719,7 @@ export default function Browse() {
                   <div className="flex-1 px-4 py-6 overflow-y-auto">
                     {/* Categories section */}
                     <div className="mb-8">
-                      <h3 className="font-medium mb-4">Categories</h3>
+                      <h3 className="font-medium text-sm mb-4">Categories</h3>
                       <div className="grid grid-cols-2 gap-3">
                         {categories.map(category => (
                           <div 
@@ -739,7 +739,7 @@ export default function Browse() {
 
                     {/* Price range */}
                     <div className="mb-8">
-                      <h3 className="font-medium mb-4">Price Range</h3>
+                      <h3 className="font-medium text-sm mb-4">Price Range</h3>
                       <div className="px-2">
                         <div className="flex justify-between mb-2">
                           <span className="text-sm text-surface-500">${priceRange[0]}</span>
@@ -778,7 +778,7 @@ export default function Browse() {
 
                     {/* Sizes */}
                     <div className="mb-8">
-                      <h3 className="font-medium mb-4">Sizes</h3>
+                      <h3 className="font-medium text-sm mb-4">Sizes</h3>
                       <div className="grid grid-cols-4 gap-3">
                         {sizes.map(size => (
                           <div 
@@ -798,7 +798,7 @@ export default function Browse() {
 
                     {/* Designers */}
                     <div className="mb-8">
-                      <h3 className="font-medium mb-4">Designers</h3>
+                      <h3 className="font-medium text-sm mb-4">Designers</h3>
                       <div className="space-y-3">
                         {designers.map(designer => (
                           <div key={designer} className="flex items-center">
@@ -817,7 +817,7 @@ export default function Browse() {
 
                     {/* Colors */}
                     <div className="mb-8">
-                      <h3 className="font-medium mb-4">Colors</h3>
+                      <h3 className="font-medium text-sm mb-4">Colors</h3>
                       <div className="grid grid-cols-2 gap-3">
                         {colors.map(color => (
                           <div key={color} className="flex items-center">
