@@ -437,9 +437,9 @@ export default function Browse() {
           {/* Filter sidebar - desktop */}
           {showFilters && (
             <div className="hidden md:block w-64 shrink-0">
-              <div className="bg-white dark:bg-surface-800 rounded-xl p-5 sticky top-20 max-h-[calc(100vh-5rem)] overflow-y-auto border border-surface-200 dark:border-surface-700">
+              <div className="bg-white dark:bg-surface-800 rounded-xl p-4 sticky top-20 max-h-[calc(100vh-5rem)] overflow-y-auto custom-scrollbar border border-surface-200 dark:border-surface-700">
                 <div className="flex justify-between items-center mb-5">
-                  <h2 className="font-semibold text-lg">Filters</h2>
+                  <h2 className="font-semibold">Filters</h2>
                   {activeFilters > 0 && (
                     <button 
                       onClick={clearAllFilters}
@@ -451,12 +451,12 @@ export default function Browse() {
                 </div>
 
                 {/* Categories section */}
-                <div className="mb-6 border-b border-surface-200 dark:border-surface-700 pb-4">
+                <div className="mb-4 border-b border-surface-200 dark:border-surface-700 pb-4 bg-surface-50 dark:bg-surface-800 rounded-lg p-3">
                   <button 
                     className="w-full flex justify-between items-center mb-3 hover:text-primary"
                     onClick={() => toggleSection('categories')}
                   >
-                    <h3 className="font-medium">Categories</h3>
+                    <h3 className="font-medium text-base">Categories</h3>
                     <ChevronDownIcon className={`w-5 h-5 transition-transform ${collapsedSections.categories ? 'rotate-180' : ''}`} />
                   </button>
 
@@ -480,12 +480,12 @@ export default function Browse() {
                 </div>
 
                 {/* Price range section */}
-                <div className="mb-6 border-b border-surface-200 dark:border-surface-700 pb-4">
+                <div className="mb-4 border-b border-surface-200 dark:border-surface-700 pb-4 bg-surface-50 dark:bg-surface-800 rounded-lg p-3">
                   <button 
                     className="w-full flex justify-between items-center mb-3 hover:text-primary"
                     onClick={() => toggleSection('price')}
                   >
-                    <h3 className="font-medium">Price Range</h3>
+                    <h3 className="font-medium text-base">Price Range</h3>
                     <ChevronDownIcon className={`w-5 h-5 transition-transform ${collapsedSections.price ? 'rotate-180' : ''}`} />
                   </button>
 
@@ -528,12 +528,12 @@ export default function Browse() {
                 </div>
 
                 {/* Sizes section */}
-                <div className="mb-6 border-b border-surface-200 dark:border-surface-700 pb-4">
+                <div className="mb-4 border-b border-surface-200 dark:border-surface-700 pb-4 bg-surface-50 dark:bg-surface-800 rounded-lg p-3">
                   <button 
                     className="w-full flex justify-between items-center mb-3 hover:text-primary"
                     onClick={() => toggleSection('sizes')}
                   >
-                    <h3 className="font-medium">Sizes</h3>
+                    <h3 className="font-medium text-base">Sizes</h3>
                     <ChevronDownIcon className={`w-5 h-5 transition-transform ${collapsedSections.sizes ? 'rotate-180' : ''}`} />
                   </button>
 
@@ -556,12 +556,12 @@ export default function Browse() {
                 </div>
 
                 {/* Designers section */}
-                <div className="mb-6 border-b border-surface-200 dark:border-surface-700 pb-4">
+                <div className="mb-4 border-b border-surface-200 dark:border-surface-700 pb-4 bg-surface-50 dark:bg-surface-800 rounded-lg p-3">
                   <button 
                     className="w-full flex justify-between items-center mb-3 hover:text-primary"
                     onClick={() => toggleSection('designers')}
                   >
-                    <h3 className="font-medium">Designers</h3>
+                    <h3 className="font-medium text-base">Designers</h3>
                     <ChevronDownIcon className={`w-5 h-5 transition-transform ${collapsedSections.designers ? 'rotate-180' : ''}`} />
                   </button>
 
@@ -584,12 +584,12 @@ export default function Browse() {
                 </div>
 
                 {/* Colors section */}
-                <div className="mb-6 pb-4">
+                <div className="mb-4 pb-4 bg-surface-50 dark:bg-surface-800 rounded-lg p-3">
                   <button 
                     className="w-full flex justify-between items-center mb-3 hover:text-primary"
                     onClick={() => toggleSection('colors')}
                   >
-                    <h3 className="font-medium">Colors</h3>
+                    <h3 className="font-medium text-base">Colors</h3>
                     <ChevronDownIcon className={`w-5 h-5 transition-transform ${collapsedSections.colors ? 'rotate-180' : ''}`} />
                   </button>
 
@@ -619,7 +619,7 @@ export default function Browse() {
 
                 <button 
                   onClick={applyFilters}
-                  className="w-full btn-primary py-3 font-medium"
+                  className="w-full btn-primary py-3 font-medium mt-2"
                 >
                   Apply Filters
                 </button>

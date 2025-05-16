@@ -63,6 +63,15 @@
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(203, 213, 225, 0.5) transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    background-color: transparent;
+  }
   
   .glass {
     @apply bg-white/80 dark:bg-surface-800/80 backdrop-blur-md;
