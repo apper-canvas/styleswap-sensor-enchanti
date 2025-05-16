@@ -260,7 +260,7 @@ function Login() {
                 <p className="text-sm text-surface-600 dark:text-surface-400">
                   Don't have an account?{" "}
                   <button type="button" onClick={() => navigate('/signup')} className="font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400">
-                    Register with role selection
+                    Register
                   </button>
                 </p>
               </div>
