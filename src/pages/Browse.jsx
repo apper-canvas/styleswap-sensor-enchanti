@@ -437,7 +437,7 @@ export default function Browse() {
           {/* Filter sidebar - desktop */}
           {showFilters && (
             <div className="hidden md:block w-64 shrink-0">
-              <div className="bg-white dark:bg-surface-800 rounded-xl p-5 sticky top-20 max-h-[calc(100vh-5rem)] overflow-y-auto">
+              <div className="bg-white dark:bg-surface-800 rounded-xl p-5 sticky top-20 max-h-[calc(100vh-5rem)] overflow-y-auto border border-surface-200 dark:border-surface-700">
                 <div className="flex justify-between items-center mb-5">
                   <h2 className="font-semibold text-lg">Filters</h2>
                   {activeFilters > 0 && (
@@ -451,9 +451,9 @@ export default function Browse() {
                 </div>
 
                 {/* Categories section */}
-                <div className="mb-6">
+                <div className="mb-6 border-b border-surface-200 dark:border-surface-700 pb-4">
                   <button 
-                    className="w-full flex justify-between items-center mb-3"
+                    className="w-full flex justify-between items-center mb-3 hover:text-primary"
                     onClick={() => toggleSection('categories')}
                   >
                     <h3 className="font-medium">Categories</h3>
@@ -461,7 +461,7 @@ export default function Browse() {
                   </button>
 
                   {!collapsedSections.categories && (
-                    <div className="pl-2 space-y-2 max-h-60 overflow-y-auto">
+                    <div className="pl-2 space-y-2 max-h-60 overflow-y-auto mt-3">
                       {categories.map(category => (
                         <div key={category} className="flex items-center">
                           <input
@@ -470,7 +470,7 @@ export default function Browse() {
                             name="category"
                             checked={activeCategory === category}
                             onChange={() => setActiveCategory(category)}
-                            className="mr-2"
+                            className="mr-2 accent-primary"
                           />
                           <label htmlFor={`category-${category}`} className="text-sm">{category}</label>
                         </div>
@@ -480,9 +480,9 @@ export default function Browse() {
                 </div>
 
                 {/* Price range section */}
-                <div className="mb-6">
+                <div className="mb-6 border-b border-surface-200 dark:border-surface-700 pb-4">
                   <button 
-                    className="w-full flex justify-between items-center mb-3"
+                    className="w-full flex justify-between items-center mb-3 hover:text-primary"
                     onClick={() => toggleSection('price')}
                   >
                     <h3 className="font-medium">Price Range</h3>
@@ -490,7 +490,7 @@ export default function Browse() {
                   </button>
 
                   {!collapsedSections.price && (
-                    <div className="px-2">
+                    <div className="px-2 mt-3">
                       <div className="flex justify-between mb-2">
                         <span className="text-xs text-surface-500">${priceRange[0]}</span>
                         <span className="text-xs text-surface-500">${priceRange[1]}</span>
@@ -510,7 +510,7 @@ export default function Browse() {
                           max={priceRange[1]}
                           value={priceRange[0]}
                           onChange={(e) => setPriceRange([Math.min(parseInt(e.target.value), priceRange[1]), priceRange[1]])}
-                          className="w-full input-field p-1 text-sm"
+                          className="w-full input-field p-1 text-sm border border-surface-200 dark:border-surface-700 rounded"
                           placeholder="Min"
                         />
                         <input
@@ -519,7 +519,7 @@ export default function Browse() {
                           max="500"
                           value={priceRange[1]}
                           onChange={(e) => setPriceRange([priceRange[0], Math.max(parseInt(e.target.value), priceRange[0])])}
-                          className="w-full input-field p-1 text-sm"
+                          className="w-full input-field p-1 text-sm border border-surface-200 dark:border-surface-700 rounded"
                           placeholder="Max"
                         />
                       </div>
@@ -528,9 +528,9 @@ export default function Browse() {
                 </div>
 
                 {/* Sizes section */}
-                <div className="mb-6">
+                <div className="mb-6 border-b border-surface-200 dark:border-surface-700 pb-4">
                   <button 
-                    className="w-full flex justify-between items-center mb-3"
+                    className="w-full flex justify-between items-center mb-3 hover:text-primary"
                     onClick={() => toggleSection('sizes')}
                   >
                     <h3 className="font-medium">Sizes</h3>
@@ -538,7 +538,7 @@ export default function Browse() {
                   </button>
 
                   {!collapsedSections.sizes && (
-                    <div className="grid grid-cols-3 gap-2 pl-2">
+                    <div className="grid grid-cols-3 gap-2 pl-2 mt-3">
                       {sizes.map(size => (
                         <div key={size} className="flex items-center">
                           <input
@@ -546,7 +546,7 @@ export default function Browse() {
                             id={`size-${size}`}
                             checked={selectedSizes.includes(size)}
                             onChange={() => toggleSizeFilter(size)}
-                            className="mr-2"
+                            className="mr-2 accent-primary"
                           />
                           <label htmlFor={`size-${size}`} className="text-sm">{size}</label>
                         </div>
@@ -556,9 +556,9 @@ export default function Browse() {
                 </div>
 
                 {/* Designers section */}
-                <div className="mb-6">
+                <div className="mb-6 border-b border-surface-200 dark:border-surface-700 pb-4">
                   <button 
-                    className="w-full flex justify-between items-center mb-3"
+                    className="w-full flex justify-between items-center mb-3 hover:text-primary"
                     onClick={() => toggleSection('designers')}
                   >
                     <h3 className="font-medium">Designers</h3>
@@ -566,7 +566,7 @@ export default function Browse() {
                   </button>
 
                   {!collapsedSections.designers && (
-                    <div className="pl-2 space-y-2 max-h-40 overflow-y-auto">
+                    <div className="pl-2 space-y-2 max-h-40 overflow-y-auto mt-3">
                       {designers.map(designer => (
                         <div key={designer} className="flex items-center">
                           <input
@@ -574,7 +574,7 @@ export default function Browse() {
                             id={`designer-${designer}`}
                             checked={selectedDesigners.includes(designer)}
                             onChange={() => toggleDesignerFilter(designer)}
-                            className="mr-2"
+                            className="mr-2 accent-primary"
                           />
                           <label htmlFor={`designer-${designer}`} className="text-sm">{designer}</label>
                         </div>
@@ -584,9 +584,9 @@ export default function Browse() {
                 </div>
 
                 {/* Colors section */}
-                <div className="mb-6">
+                <div className="mb-6 pb-4">
                   <button 
-                    className="w-full flex justify-between items-center mb-3"
+                    className="w-full flex justify-between items-center mb-3 hover:text-primary"
                     onClick={() => toggleSection('colors')}
                   >
                     <h3 className="font-medium">Colors</h3>
@@ -594,7 +594,7 @@ export default function Browse() {
                   </button>
 
                   {!collapsedSections.colors && (
-                    <div className="pl-2 space-y-2">
+                    <div className="pl-2 space-y-2 mt-3">
                       {colors.map(color => (
                         <div key={color} className="flex items-center">
                           <input
@@ -602,7 +602,7 @@ export default function Browse() {
                             id={`color-${color}`}
                             checked={selectedColors.includes(color)}
                             onChange={() => toggleColorFilter(color)}
-                            className="mr-2"
+                            className="mr-2 accent-primary"
                           />
                           <label htmlFor={`color-${color}`} className="text-sm flex items-center">
                             <span 
@@ -619,7 +619,7 @@ export default function Browse() {
 
                 <button 
                   onClick={applyFilters}
-                  className="w-full btn-primary py-2 mb-2"
+                  className="w-full btn-primary py-3 font-medium"
                 >
                   Apply Filters
                 </button>
