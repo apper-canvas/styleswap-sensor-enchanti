@@ -632,7 +632,7 @@ export default function Browse() {
             {/* Browseable Item Grid - similar structure to the Home page */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {sortedItems.map((item) => (
-                <div
+                <motion.div
                   key={item.id}
                   className="card group overflow-hidden"
                   onClick={() => navigateToItemDetail(item.id)}
@@ -677,12 +677,12 @@ export default function Browse() {
                     <span className="text-sm font-medium">{item.rating}</span>
                   </div>
                 </div>
-              </div>
+              </motion.div>
               ))}
             </div>
             
             {sortedItems.length === 0 && (
-              <div className="text-center py-12">
+              <motion.div className="text-center py-12">
                 <h3 className="text-xl font-semibold mb-2">No items match your filters</h3>
                 <p className="text-surface-500 dark:text-surface-400 mb-6">Try adjusting your filters or search query</p>
                 <button 
@@ -691,7 +691,7 @@ export default function Browse() {
                 >
                   Clear All Filters
                 </button>
-              </div>
+              </motion.div>
             )}
           </div>
           
