@@ -115,17 +115,14 @@ export default function ItemDetail() {
   };
 
   const addToBag = () => {
-      }
-      
-      if (newState) {
-        toast.success(`${item.title} added to your wishlist!`);
-      } else {
-        toast.info(`${item.title} removed from your wishlist`);
     if (!selectedSize) {
       toast.error("Please select a size first");
-    });
-  };
+      return;
+    }
+    
     toast.success(`${item.title} added to your bag!`);
+  };
+
   };
 
   const rentNow = () => {
