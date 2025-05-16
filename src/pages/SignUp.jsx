@@ -332,7 +332,6 @@ function SignUp() {
 
               </div>
             <li className="flex items-start">
-            </li>
               <div className="flex-shrink-0 p-1">
                 <TruckIcon className="h-6 w-6" />
               </div>
