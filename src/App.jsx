@@ -6,6 +6,7 @@ import Home from './pages/Home';
 import NotFound from './pages/NotFound';
 import Browse from './pages/Browse';
 import CreateListing from './pages/CreateListing';
+import SignUp from './pages/SignUp';
 import Login from './pages/Login';
 import getIcon from './utils/iconUtils';
 
@@ -50,6 +51,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<SignUp />} />
         <Route path="/browse" element={<Browse />} />
         <Route path="/create-listing" element={<CreateListing />} />
         <Route path="*" element={<NotFound />} />

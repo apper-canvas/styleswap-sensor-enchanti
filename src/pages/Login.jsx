@@ -223,6 +223,15 @@ function Login() {
               >
                 Sign in
               </button>
+              
+              <div className="mt-4 text-center">
+                <p className="text-sm text-surface-600 dark:text-surface-400">
+                  Don't have an account?{' '}
+                  <a href="#" onClick={() => navigate('/signup')} className="font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400">
+                    Create an account
+                  </a>
+                </p>
+              </button>
             </form>
           ) : (
             <form onSubmit={handleRegisterSubmit} className="space-y-6">
