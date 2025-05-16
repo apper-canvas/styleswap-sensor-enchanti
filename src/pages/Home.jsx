@@ -34,6 +34,10 @@ export default function Home() {
   const handleRentNow = () => {
     navigate('/browse');
   };
+  
+  const handleListClothes = () => {
+    navigate('/create-listing');
+  };
 
   const featuredItems = [
     {
@@ -163,7 +167,7 @@ export default function Home() {
               <button className="p-2 rounded-full hover:bg-surface-100 dark:hover:bg-surface-700">
                 <ShoppingBagIcon className="w-6 h-6 text-surface-600 dark:text-surface-300" />
               </button>
-              <button className="btn-primary">List Your Items</button>
+              <button onClick={handleListClothes} className="btn-primary">List Your Items</button>
             </div>
             
             {/* Mobile Menu Button */}
@@ -212,7 +216,7 @@ export default function Home() {
                   <span>Bag</span>
                 </button>
               </div>
-              <button className="w-full mt-3 btn-primary">List Your Items</button>
+              <button onClick={handleListClothes} className="w-full mt-3 btn-primary">List Your Items</button>
             </div>
           </div>
         )}
@@ -235,7 +239,7 @@ export default function Home() {
                   <button onClick={handleSignUp} className="btn bg-primary text-white hover:bg-primary-dark px-8 py-3 text-lg">
                     Sign Up
                   </button>
-                  <button className="btn border-2 border-white text-white hover:bg-white/10 px-8 py-3 text-lg">
+                  <button onClick={handleListClothes} className="btn border-2 border-white text-white hover:bg-white/10 px-8 py-3 text-lg">
                     List Your Clothes
                   </button>
                 </div>

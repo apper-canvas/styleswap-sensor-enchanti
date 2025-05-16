@@ -5,6 +5,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Home from './pages/Home';
 import NotFound from './pages/NotFound';
 import Browse from './pages/Browse';
+import CreateListing from './pages/CreateListing';
 import Login from './pages/Login';
 import getIcon from './utils/iconUtils';
 
@@ -50,6 +51,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/browse" element={<Browse />} />
+        <Route path="/create-listing" element={<CreateListing />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
 
