@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
+import { ShoppingBagContext } from '../App';
 import getIcon from '../utils/iconUtils';
 
 const HeartIcon = getIcon('Heart');
@@ -16,6 +17,7 @@ const ShareIcon = getIcon('Share');
 export default function ItemDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { addToBag: addItemToBag, getBagCount } = useContext(ShoppingBagContext);
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedSize, setSelectedSize] = useState(null);
@@ -119,8 +121,27 @@ export default function ItemDetail() {
       toast.error("Please select a size first");
       return;
     }
+
+    // Create an item object with selected options
+    const bagItem = {
+      id: item.id,
+      title: item.title,
+      designer: item.designer,
+      price: item.rentalPrice,
+      image: item.images[0],
+      color: item.color,
+      size: selectedSize,
+      rentalDays: rentalDays,
+      addedAt: new Date().toISOString()
+    };
     
-    toast.success(`${item.title} added to your bag!`);
+    // Add to global bag context
+    addItemToBag(bagItem);
+    
+    // Show success message
+    toast.success(`${item.title} (${selectedSize}) added to your bag!`, {
+      icon: "🛍️"
+    });
   };
 
   const rentNow = () => {
@@ -186,7 +207,16 @@ export default function ItemDetail() {
                 <HeartIcon className={`w-5 h-5 ${isInWishlist ? 'text-red-500 fill-red-500' : 'text-surface-600 dark:text-surface-300'}`} />
               </button>
               <button className="p-2 rounded-full hover:bg-surface-100 dark:hover:bg-surface-700">
-                <ShoppingBagIcon className="w-5 h-5 text-surface-600 dark:text-surface-300" />
+                <div className="relative">
+                  <ShoppingBagIcon className="w-5 h-5 text-surface-600 dark:text-surface-300" />
+                  {getBagCount() > 0 && (
+                    <div className="absolute -top-2 -right-2 w-4 h-4 rounded-full bg-primary flex items-center justify-center">
+                      <span className="text-white text-xs font-bold">
+                        {getBagCount()}
+                      </span>
+                    </div>
+                  )}
+                </div>
               </button>
             </div>
           </div>

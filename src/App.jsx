@@ -17,10 +17,20 @@ const UserIcon = getIcon('User');
 const ChevronDownIcon = getIcon('ChevronDown');
 
 // Create context for user roles
-export const UserContext = createContext({
+export const UserContext = createContext({  
   roles: [],
   activeRole: '',
   setActiveRole: () => {},
+  isLoggedIn: false
+});
+
+// Create context for shopping bag
+export const ShoppingBagContext = createContext({
+  bagItems: [],
+  addToBag: () => {},
+  removeBagItem: () => {},
+  clearBag: () => {},
+  getBagCount: () => 0,
   isLoggedIn: false
 });
 
@@ -70,6 +80,27 @@ function App() {
       !savedMode && window.matchMedia('(prefers-color-scheme: dark)').matches
     );
   });
+
+  // Shopping bag state management
+  const [bagItems, setBagItems] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('shoppingBag')) || [];
+    } catch (error) {
+      return [];
+    }
+  });
+
+  // Update localStorage when bag changes
+  useEffect(() => {
+    localStorage.setItem('shoppingBag', JSON.stringify(bagItems));
+  }, [bagItems]);
+
+  const [darkMode, setDarkMode] = useState(() => {
+    const savedMode = localStorage.getItem('darkMode');
+    return savedMode === 'true' || (
+      !savedMode && window.matchMedia('(prefers-color-scheme: dark)').matches
+    );
+  });
   
   // User role management
   const [roles, setRoles] = useState(() => {
@@ -86,6 +117,36 @@ function App() {
   
   // Check if user is logged in (has roles)
   const isLoggedIn = roles.length > 0;
+
+  // Shopping bag functions
+  const addToBag = (item) => {
+    setBagItems(prevItems => {
+      // Check if item already exists in bag
+      const existingItemIndex = prevItems.findIndex(i => 
+        i.id === item.id && i.size === item.size
+      );
+      
+      if (existingItemIndex >= 0) {
+        // Update existing item
+        const newItems = [...prevItems];
+        newItems[existingItemIndex] = item;
+        return newItems;
+      } else {
+        // Add new item
+        return [...prevItems, item];
+      }
+    });
+  };
+
+  const removeBagItem = (itemId, size) => {
+    setBagItems(prevItems => prevItems.filter(item => !(item.id === itemId && item.size === size)));
+  };
+
+  const clearBag = () => setBagItems([]);
+
+  const getBagCount = () => {
+    return bagItems.length;
+  };
 
   useEffect(() => {
     if (darkMode) {
@@ -107,61 +168,69 @@ function App() {
     setDarkMode(!darkMode);
   };
 
-  return (
-    <UserContext.Provider value={{ 
-      roles, 
-      activeRole, 
-      setActiveRole,
-      isLoggedIn
+  return (    
+    <ShoppingBagContext.Provider value={{
+      bagItems,
+      addToBag,
+      removeBagItem,
+      clearBag,
+      getBagCount
     }}>
-      <div className="min-h-screen bg-surface-50 dark:bg-surface-900 transition-colors duration-200">
-      {/* Role Switcher - visible on all pages if logged in */}
-      {isLoggedIn && (
-        <div className="fixed top-6 right-20 z-50">
-          <RoleSwitcher />
-        </div>
-      )}
-      
-      <button
-        aria-label="Toggle dark mode"
-        className="fixed bottom-6 right-6 z-50 p-2 rounded-full bg-surface-200 dark:bg-surface-700 shadow-soft hover:bg-surface-300 dark:hover:bg-surface-600 transition-all"
-        onClick={toggleDarkMode}
-      >
-        {darkMode ? (
-          <SunIcon className="w-6 h-6 text-yellow-400" />
-        ) : (
-          <MoonIcon className="w-6 h-6 text-surface-600" />
+      <UserContext.Provider value={{ 
+        roles, 
+        activeRole, 
+        setActiveRole,
+        isLoggedIn
+      }}>
+        <div className="min-h-screen bg-surface-50 dark:bg-surface-900 transition-colors duration-200">
+        {/* Role Switcher - visible on all pages if logged in */}
+        {isLoggedIn && (
+          <div className="fixed top-6 right-20 z-50">
+            <RoleSwitcher />
+          </div>
         )}
-      </button>
+        
+        <button
+          aria-label="Toggle dark mode"
+          className="fixed bottom-6 right-6 z-50 p-2 rounded-full bg-surface-200 dark:bg-surface-700 shadow-soft hover:bg-surface-300 dark:hover:bg-surface-600 transition-all"
+          onClick={toggleDarkMode}
+        >
+          {darkMode ? (
+            <SunIcon className="w-6 h-6 text-yellow-400" />
+          ) : (
+            <MoonIcon className="w-6 h-6 text-surface-600" />
+          )}
+        </button>
 
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/browse" element={<Browse />} />
-        <Route path="/item/:id" element={<ItemDetail />} />
-        <Route path="/create-listing" element={<CreateListing />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/browse" element={<Browse />} />
+          <Route path="/item/:id" element={<ItemDetail />} />
+          <Route path="/create-listing" element={<CreateListing />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
 
-      <ToastContainer
-        position="top-right"
-        autoClose={4000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme={darkMode ? "dark" : "light"}
-        toastStyle={{
-          borderRadius: '0.5rem',
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)'
-        }}
-      />
-      </div>
-    </UserContext.Provider>
+        <ToastContainer
+          position="top-right"
+          autoClose={4000}
+          hideProgressBar={false}
+          newestOnTop
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme={darkMode ? "dark" : "light"}
+          toastStyle={{
+            borderRadius: '0.5rem',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)'
+          }}
+        />
+        </div>
+      </UserContext.Provider>
+    </ShoppingBagContext.Provider>
   );
 }
 
