@@ -291,7 +291,7 @@ export default function ItemDetail() {
             
             {/* Size Selection */}
             <div>
-              <div className="flex justify-between items-center mb-2">
+              <div className="flex justify-between items-center mb-3">
                 <h3 className="font-medium">Size</h3>
                 <button className="text-sm text-primary">Size Guide</button>
               </div>
