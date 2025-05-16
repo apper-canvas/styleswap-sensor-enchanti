@@ -20,6 +20,7 @@ export default function Browse() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchQuery, setSearchQuery] = useState('');
+  const [wishlistItems, setWishlistItems] = useState([]);
   const [showFilters, setShowFilters] = useState(true);
   const [activeCategory, setActiveCategory] = useState('All');
   const [sortBy, setSortBy] = useState('newest');
@@ -273,27 +274,31 @@ export default function Browse() {
     toast.info(`Searching for "${searchQuery}"...`);
   };
 
-  const toggleWishlist = (itemId) => {
-    // Prevent navigation when clicking the wishlist button
-    event.stopPropagation();
-    toast.success(`Item added to your wishlist!`);
-  };
-
+  const toggleWishlist = (itemId, event) => {
+    // Update wishlist state
+    setWishlistItems(prevItems => {
       let newWishlist;
-      
       if (prevItems.includes(itemId)) {
-    // Prevent navigation when clicking the rent now button
         newWishlist = prevItems.filter(id => id !== itemId);
-    toast.success(`${item.title} added to your bag!`);
-  };
+        toast.info(`Item removed from your wishlist!`);
+      } else {
         newWishlist = [...prevItems, itemId];
-  const navigateToItemDetail = (itemId) => {
-      
+        toast.success(`Item added to your wishlist!`);
+      }
       // Save to localStorage for persistence
       localStorage.setItem('wishlistItems', JSON.stringify(newWishlist));
       return newWishlist;
     });
+  };
+  
+  const navigateToItemDetail = (itemId) => {
     toast.info('Viewing item details');
+    navigate(`/item/${itemId}`);
+  };
+
+  const addToBag = (item) => {
+    toast.success(`${item.title} added to your bag!`);
+    // Implementation for adding to bag would go here
   };
 
   return (
@@ -407,8 +412,7 @@ export default function Browse() {
                   className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
                 />
                 <button
-                  onClick={() => toggleWishlist(item.id)}
-                  onClick={(e) => { e.stopPropagation(); toggleWishlist(item.id); }}
+                  onClick={(e) => { e.stopPropagation(); toggleWishlist(item.id, e); }}
                   className="absolute top-3 right-3 p-2 rounded-full bg-white/80 hover:bg-white shadow-md z-10 cursor-pointer"
                 >
                   <HeartIcon className="w-5 h-5 text-surface-700 hover:text-primary" />
@@ -422,7 +426,6 @@ export default function Browse() {
                   <button
                     onClick={(e) => { e.stopPropagation(); addToBag(item); }}
                     className="btn-primary transform -translate-y-4 group-hover:translate-y-0 transition-all duration-300 cursor-pointer"
-                    className="btn-primary transform -translate-y-4 group-hover:translate-y-0 transition-all duration-300"
                   >
                     Rent Now
                   </button>
