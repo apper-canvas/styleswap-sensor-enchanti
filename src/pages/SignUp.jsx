@@ -25,7 +25,6 @@ function SignUp() {
     name: '',
     email: '',
     roles: 'renter',  // Default role is renter
-    roles: ['renter'],  // Default role is renter
     agreeToTerms: false
   });
   const [errors, setErrors] = useState({});
