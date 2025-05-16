@@ -23,11 +23,8 @@ const ShirtIcon = getIcon('Shirt');
 const WatchIcon = getIcon('Watch');
 
 // Additional icons for occasions
-const CalendarIcon = getIcon('Calendar');
+const CalendarIcon = getIcon('Calendar'); 
 const PartyPopperIcon = getIcon('PartyPopper');
-const BriefcaseIcon = getIcon('Briefcase');
-const UmbrellaIcon = getIcon('Umbrella');
-const GlassesIcon = getIcon('Glasses');
 
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
