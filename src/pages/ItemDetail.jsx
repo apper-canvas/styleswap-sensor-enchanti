@@ -123,8 +123,6 @@ export default function ItemDetail() {
     toast.success(`${item.title} added to your bag!`);
   };
 
-  };
-
   const rentNow = () => {
     if (!selectedSize) {
       toast.error("Please select a size first");
