@@ -186,13 +186,16 @@ function Login() {
 
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
-                  <label htmlFor="password" className="block text-sm font-medium text-surface-700 dark:text-surface-300">Password</label>
+                  <label htmlFor="password" className="block text-sm font-medium text-surface-700 dark:text-surface-300">
+                    Password
+                  </label>
                   <a href="#" className="text-sm font-medium text-primary-600 dark:text-primary-400 hover:text-primary-500">Forgot password?</a>
                 </div>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <LockIcon className="h-5 w-5 text-surface-400" />
                   </div>
+                  {/* Password input with eye icon toggle */}
                   <input
                     id="password"
                     name="password"
@@ -217,6 +220,20 @@ function Login() {
                 {loginErrors.password && <p className="text-sm text-red-500">{loginErrors.password}</p>}
               </div>
 
+              {/* Remember me checkbox */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <input
+                    id="remember-me"
+                    name="remember-me"
+                    type="checkbox"
+                    className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-surface-300 rounded"
+                  />
+                  <label htmlFor="remember-me" className="ml-2 block text-sm text-surface-700 dark:text-surface-300">
+                    Remember me
+                  </label>
+                </div>
+              </div>
               <button
                 type="submit"
                 className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors"
