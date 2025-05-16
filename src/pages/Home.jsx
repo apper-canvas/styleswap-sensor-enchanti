@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 import MainFeature from '../components/MainFeature';
@@ -13,6 +14,12 @@ const CheckIcon = getIcon('Check');
 const StarIcon = getIcon('Star');
 const TrendingUpIcon = getIcon('TrendingUp');
 const DressIcon = getIcon('Shirt');
+  const navigate = useNavigate();
+  
+  const handleSignUp = () => {
+    navigate('/login?tab=register');
+  };
+
 const BriefcaseIcon = getIcon('Briefcase');
 const UmbrellaIcon = getIcon('Umbrella');
 const GlassesIcon = getIcon('Glasses');
@@ -44,7 +51,7 @@ export default function Home() {
       category: "Business"
     },
     {
-      id: 3,
+              <button onClick={handleSignUp} className="px-6 py-3 text-lg font-semibold rounded-full bg-primary-600 text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors shadow-md">Sign Up</button>
       title: "Crystal Embellished Clutch",
       designer: "Jimmy Choo",
       retailPrice: 1800,
