@@ -30,6 +30,10 @@ export default function Home() {
   const handleSignUp = () => {
     navigate('/login?tab=register');
   };
+  
+  const handleRentNow = () => {
+    navigate('/browse');
+  };
 
   const featuredItems = [
     {
@@ -125,10 +129,6 @@ export default function Home() {
     <div className="min-h-screen">
       {/* Header Navigation */}
       <header className="sticky top-0 z-50 bg-white dark:bg-surface-800 shadow-sm">
-  const handleRentNow = () => {
-    navigate('/browse');
-  };
-
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
