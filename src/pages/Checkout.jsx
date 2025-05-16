@@ -223,8 +223,36 @@ export default function Checkout() {
       if (!orderResponse.success) {
         throw new Error("Failed to create order");
       }
-      toast.error("Please fill in all required payment information");
+      
+      // Get the order ID from the created order
+      const orderId = orderResponse.results[0].data.Id;
+      
+      // 2. Create the order items in the database
+      const orderItemsResponse = await createOrderItems(bagItems, orderId);
+      
+      if (!orderItemsResponse.success) {
+        throw new Error("Failed to create order items");
+      }
+      
+      // 3. Clear the shopping bag
+      clearBag();
+      
+      // 4. Show success message
+      toast.success("Order placed successfully!");
+      
+      // 5. Navigate to confirmation page
+      navigate(`/order-confirmation?id=${orderId}`);
+    } catch (error) {
+      console.error("Error placing order:", error);
+      toast.error(error.message || "Failed to place your order. Please try again.");
+    } finally {
+      // Always set processing state back to false
+      setIsProcessing(false);
     }
+    
+    // Note: The rest of the function handles calculating totals,
+    // showing empty bag message, and rendering the checkout form
+    // So we don't need to modify anything else
   };
   
   // Calculate order summary
