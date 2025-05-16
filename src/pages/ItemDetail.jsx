@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
@@ -13,6 +13,11 @@ const CheckIcon = getIcon('Check');
 const CalendarIcon = getIcon('Calendar');
 const CircleIcon = getIcon('Circle');
 const ShareIcon = getIcon('Share');
+const ZoomInIcon = getIcon('ZoomIn');
+const ZoomOutIcon = getIcon('ZoomOut');
+const XIcon = getIcon('X');
+const ChevronLeftIcon = getIcon('ChevronLeft');
+const ChevronRightIcon = getIcon('ChevronRight');
 
 export default function ItemDetail() {
   const { id } = useParams();
@@ -227,30 +232,12 @@ export default function ItemDetail() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Product Images */}
           <div className="space-y-4">
-            <div className="aspect-square overflow-hidden rounded-lg bg-surface-100 dark:bg-surface-800">
-              <img 
-                src={item.images[selectedImage]} 
-                alt={item.title}
-                className="w-full h-full object-cover object-center"
-              />
-            </div>
-            
-            {/* Thumbnail Images */}
-            <div className="flex space-x-3">
-              {item.images.map((image, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setSelectedImage(idx)}
-                  className={`w-20 h-20 rounded-md overflow-hidden ${selectedImage === idx ? 'ring-2 ring-primary' : 'ring-1 ring-surface-200 dark:ring-surface-700'}`}
-                >
-                  <img 
-                    src={image} 
-                    alt={`${item.title} - View ${idx + 1}`}
-                    className="w-full h-full object-cover"
-                  />
-                </button>
-              ))}
-            </div>
+            <ImageGallery 
+              images={item.images} 
+              title={item.title}
+              selectedImage={selectedImage}
+              setSelectedImage={setSelectedImage}
+            />
           </div>
           
           {/* Product Details */}
@@ -377,5 +364,234 @@ export default function ItemDetail() {
         </div>
       </main>
     </div>
+  );
+}
+
+function ImageGallery({ images, title, selectedImage, setSelectedImage }) {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalImageIndex, setModalImageIndex] = useState(0);
+  const [isZooming, setIsZooming] = useState(false);
+  const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
+  const [zoomLevel, setZoomLevel] = useState(1);
+  const imageRef = useRef(null);
+
+  useEffect(() => {
+    // When the selected thumbnail changes, update the modal image index
+    setModalImageIndex(selectedImage);
+  }, [selectedImage]);
+
+  useEffect(() => {
+    // Add keyboard event listener for navigation
+    const handleKeyDown = (e) => {
+      if (!isModalOpen) return;
+
+      switch (e.key) {
+        case 'ArrowLeft':
+          navigateImage(-1);
+          break;
+        case 'ArrowRight':
+          navigateImage(1);
+          break;
+        case 'Escape':
+          closeModal();
+          break;
+        default:
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isModalOpen, modalImageIndex]);
+
+  const openModal = useCallback(() => {
+    setIsModalOpen(true);
+    setModalImageIndex(selectedImage);
+    // Reset zoom when opening modal
+    setIsZooming(false);
+    setZoomLevel(1);
+    document.body.style.overflow = 'hidden'; // Prevent scrolling when modal is open
+  }, [selectedImage]);
+
+  const closeModal = useCallback(() => {
+    setIsModalOpen(false);
+    setIsZooming(false);
+    setZoomLevel(1);
+    document.body.style.overflow = ''; // Restore scrolling
+  }, []);
+
+  const navigateImage = useCallback((direction) => {
+    const newIndex = (modalImageIndex + direction + images.length) % images.length;
+    setModalImageIndex(newIndex);
+    setSelectedImage(newIndex);
+    // Reset zoom when changing images
+    setIsZooming(false);
+    setZoomLevel(1);
+  }, [modalImageIndex, images.length, setSelectedImage]);
+
+  const toggleZoom = useCallback(() => {
+    if (isZooming) {
+      setIsZooming(false);
+      setZoomLevel(1);
+    } else {
+      setIsZooming(true);
+      setZoomLevel(2); // Initial zoom level
+    }
+  }, [isZooming]);
+
+  const handleMouseMove = useCallback((e) => {
+    if (!isZooming || !imageRef.current) return;
+
+    const rect = imageRef.current.getBoundingClientRect();
+    
+    // Calculate mouse position as percentage of the image dimensions
+    const x = (e.clientX - rect.left) / rect.width;
+    const y = (e.clientY - rect.top) / rect.height;
+    
+    // Limit the values to prevent showing empty space around the image
+    const limitedX = Math.max(0, Math.min(1, x));
+    const limitedY = Math.max(0, Math.min(1, y));
+    
+    setZoomPosition({ x: limitedX, y: limitedY });
+  }, [isZooming]);
+
+  const handleZoomIn = useCallback(() => {
+    setZoomLevel(prev => Math.min(prev + 0.5, 4)); // Max zoom 4x
+    setIsZooming(true);
+  }, []);
+
+  const handleZoomOut = useCallback(() => {
+    const newZoom = zoomLevel - 0.5;
+    if (newZoom <= 1) {
+      setIsZooming(false);
+      setZoomLevel(1);
+    } else {
+      setZoomLevel(newZoom);
+    }
+  }, [zoomLevel]);
+
+  return (
+    <>
+      {/* Main image with click to zoom */}
+      <motion.div 
+        className="aspect-square overflow-hidden rounded-lg bg-surface-100 dark:bg-surface-800 image-zoom-container cursor-pointer"
+        onClick={openModal}
+        layoutId={`product-image-${selectedImage}`}
+      >
+        <img 
+          src={images[selectedImage]} 
+          alt={title}
+          className="w-full h-full object-cover object-center"
+        />
+        <div className="absolute bottom-3 right-3 p-2 bg-surface-800/70 backdrop-blur-sm rounded-full text-white">
+          <ZoomInIcon className="w-5 h-5" />
+        </div>
+      </motion.div>
+      
+      {/* Thumbnail Images */}
+      <div className="flex space-x-3 overflow-x-auto pb-2 custom-scrollbar">
+        {images.map((image, idx) => (
+          <motion.button
+            key={idx}
+            onClick={() => setSelectedImage(idx)}
+            className={`w-20 h-20 rounded-md overflow-hidden flex-shrink-0 ${
+              selectedImage === idx ? 'ring-2 ring-primary' : 'ring-1 ring-surface-200 dark:ring-surface-700'
+            }`}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <img 
+              src={image} 
+              alt={`${title} - View ${idx + 1}`}
+              className="w-full h-full object-cover"
+            />
+          </motion.button>
+        ))}
+      </div>
+
+      {/* Modal lightbox */}
+      {isModalOpen && (
+        <div 
+          className="image-gallery-backdrop"
+          onClick={closeModal}
+        >
+          <div 
+            className="image-gallery-modal"
+            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking the image
+          >
+            {/* Close button */}
+            <button 
+              className="absolute top-4 right-4 z-60 p-2 bg-surface-800/70 backdrop-blur-sm rounded-full text-white hover:bg-surface-700"
+              onClick={closeModal}
+              aria-label="Close image gallery"
+            >
+              <XIcon className="w-5 h-5" />
+            </button>
+            
+            {/* Navigation buttons */}
+            <button 
+              className="absolute left-4 top-1/2 -translate-y-1/2 z-60 p-2 bg-surface-800/70 backdrop-blur-sm rounded-full text-white hover:bg-surface-700"
+              onClick={(e) => {
+                e.stopPropagation();
+                navigateImage(-1);
+              }}
+              aria-label="Previous image"
+            >
+              <ChevronLeftIcon className="w-6 h-6" />
+            </button>
+            
+            <button 
+              className="absolute right-4 top-1/2 -translate-y-1/2 z-60 p-2 bg-surface-800/70 backdrop-blur-sm rounded-full text-white hover:bg-surface-700"
+              onClick={(e) => {
+                e.stopPropagation();
+                navigateImage(1);
+              }}
+              aria-label="Next image"
+            >
+              <ChevronRightIcon className="w-6 h-6" />
+            </button>
+            
+            {/* Zoom controls */}
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-60 flex space-x-3 p-2 bg-surface-800/70 backdrop-blur-sm rounded-full text-white">
+              <button 
+                className="p-1 hover:bg-surface-700/50 rounded-full"
+                onClick={handleZoomOut}
+                disabled={zoomLevel <= 1}
+                aria-label="Zoom out"
+              >
+                <ZoomOutIcon className="w-5 h-5" />
+              </button>
+              
+              <button 
+                className="p-1 hover:bg-surface-700/50 rounded-full"
+                onClick={handleZoomIn}
+                disabled={zoomLevel >= 4}
+                aria-label="Zoom in"
+              >
+                <ZoomInIcon className="w-5 h-5" />
+              </button>
+            </div>
+            
+            {/* Image container with zoom functionality */}
+            <div 
+              className={`max-w-full max-h-90vh overflow-hidden ${isZooming ? 'cursor-zoom-out' : 'cursor-zoom-in'}`}
+              onClick={toggleZoom}
+              onMouseMove={handleMouseMove}
+              ref={imageRef}
+            >
+              <motion.img 
+                src={images[modalImageIndex]} 
+                alt={`${title} - View ${modalImageIndex + 1}`}
+                className="max-h-90vh max-w-full object-contain"
+                style={{ 
+                  transform: isZooming ? `scale(${zoomLevel}) translate(${(0.5 - zoomPosition.x) * 100 / zoomLevel}%, ${(0.5 - zoomPosition.y) * 100 / zoomLevel}%)` : 'scale(1)',
+                  transition: isZooming ? 'none' : 'transform 0.3s ease-out'
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

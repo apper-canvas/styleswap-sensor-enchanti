@@ -93,6 +93,42 @@
   .text-balance {
     text-wrap: balance;
   }
+
+  /* Image gallery and zoom features */
+  .image-zoom-container {
+    position: relative;
+    overflow: hidden;
+    cursor: zoom-in;
+  }
+
+  .image-zoom-container.zoomed {
+    cursor: zoom-out;
+  }
+
+  .image-gallery-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .image-gallery-modal {
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+  }
+  
+  .image-controls {
+    position: absolute;
+    z-index: 60;
+    transition: all 0.3s ease;
+  }
 }
 
 /* Import react-toastify CSS */
