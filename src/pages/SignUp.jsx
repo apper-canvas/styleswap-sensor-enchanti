@@ -241,17 +241,17 @@ function SignUp() {
                   </div>
                 </div>
                 
-                <div 
+                <div
+                  className={`flex items-start p-4 border rounded-lg cursor-pointer transition-all ${
                     formData.roles.includes('lender') 
-                    registerForm.roles.includes('lender') 
+                      ? 'border-primary bg-primary/5 dark:bg-primary/10'  
                       : 'border-surface-300 dark:border-surface-600'
-                    checked={formData.roles.includes('lender')}
                   }`}
                   onClick={() => handleRoleChange('lender')}
                 >
                   <input
+                    type="checkbox"
                     checked={formData.roles.includes('lender')}
-                    checked={registerForm.roles.includes('lender')}
                     onChange={() => handleRoleChange('lender')}
                     className="h-5 w-5 text-primary rounded"
                   />
