@@ -162,8 +162,7 @@ const items = [];
               <form onSubmit={handleSearch} className="relative">
                 <input
                   type="text"
-              </button> 
-                  value={searchQuery}
+                    value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10 pr-4 py-2 w-48 rounded-full bg-surface-100 dark:bg-surface-700 focus:outline-none focus:ring-2 focus:ring-primary"
                 />
@@ -181,7 +180,7 @@ const items = [];
               </button>
               <button 
                 onClick={handleListClothes} 
-            </div> 
+                className="btn-primary"
               >List Your Items</button>
             </div>
             
@@ -265,8 +264,7 @@ const items = [];
                   >
                     List Your Clothes
                   </button>
-        </header> 
-              </div>
+                </div>
             </div>
           </div>
         </section>
