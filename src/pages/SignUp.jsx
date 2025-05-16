@@ -3,16 +3,20 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import getIcon from '../utils/iconUtils';
 
+// Icons
 const EyeIcon = getIcon('Eye');
 const EyeOffIcon = getIcon('EyeOff');
 const AtSignIcon = getIcon('AtSign');
 const LockIcon = getIcon('Lock');
 const UserIcon = getIcon('User');
 const ArrowLeftIcon = getIcon('ArrowLeft');
-const CheckIcon = getIcon('Check');
 const ShieldIcon = getIcon('Shield');
 const TruckIcon = getIcon('Truck');
 const HeartIcon = getIcon('Heart');
+const CheckIcon = getIcon('Check');
+const BuildingStorefrontIcon = getIcon('BuildingStorefront');
+const DollarSignIcon = getIcon('DollarSign');
+const ClockIcon = getIcon('Clock');
 
 function SignUp() {
   const navigate = useNavigate();
@@ -57,6 +61,17 @@ function SignUp() {
         : [...formData.roles, role];
       setFormData({ ...formData, roles: newRoles.length ? newRoles : ['renter'] }); // Ensure at least one role
     }
+    
+    // Clear role error when making a selection
+    if (errors.roles) {
+      setErrors({
+        ...errors,
+        roles: ''
+      });
+    }
+    
+    // Show a toast confirmation of role selection
+    toast.info(`You've selected ${role === 'both' ? 'both roles' : `the ${role} role`}`);
   };
 
   const validateForm = () => {
@@ -123,6 +138,78 @@ function SignUp() {
           
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-1">
+              {/* User Role Selection - Redesigned */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-surface-700 dark:text-surface-300 mb-3">
+                  I want to use StyleSwap as:
+                </label>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Renter Option */}
+                  <div 
+                    className={`relative flex flex-col p-5 border-2 rounded-xl cursor-pointer transition-all ${
+                      formData.roles.includes('renter') 
+                        ? 'border-primary dark:border-primary-light bg-primary/5 dark:bg-primary/10 shadow-md'  
+                        : 'border-surface-300 dark:border-surface-600 hover:border-surface-400 dark:hover:border-surface-500'
+                    }`}
+                    onClick={() => handleRoleChange('renter')}
+                  >
+                    {formData.roles.includes('renter') && (
+                      <div className="absolute top-3 right-3 bg-primary text-white rounded-full p-1">
+                        <CheckIcon className="h-4 w-4" />
+                      </div>
+                    )}
+                    <div className="flex items-center mb-3">
+                      <div className={`p-2 rounded-full ${formData.roles.includes('renter') ? 'bg-primary/20 text-primary' : 'bg-surface-200 dark:bg-surface-700 text-surface-600 dark:text-surface-400'}`}>
+                        <UserIcon className="h-6 w-6" />
+                      </div>
+                      <h3 className="ml-3 font-semibold text-lg">Renter</h3>
+                    </div>
+                    <p className="text-sm text-surface-600 dark:text-surface-400">
+                      Rent designer items for special occasions without the commitment of ownership
+                    </p>
+                  </div>
+                  
+                  {/* Lender Option */}
+                  <div
+                    className={`relative flex flex-col p-5 border-2 rounded-xl cursor-pointer transition-all ${
+                      formData.roles.includes('lender') 
+                        ? 'border-primary dark:border-primary-light bg-primary/5 dark:bg-primary/10 shadow-md'  
+                        : 'border-surface-300 dark:border-surface-600 hover:border-surface-400 dark:hover:border-surface-500'
+                    }`}
+                    onClick={() => handleRoleChange('lender')}
+                  >
+                    {formData.roles.includes('lender') && (
+                      <div className="absolute top-3 right-3 bg-primary text-white rounded-full p-1">
+                        <CheckIcon className="h-4 w-4" />
+                      </div>
+                    )}
+                    <div className="flex items-center mb-3">
+                      <div className={`p-2 rounded-full ${formData.roles.includes('lender') ? 'bg-primary/20 text-primary' : 'bg-surface-200 dark:bg-surface-700 text-surface-600 dark:text-surface-400'}`}>
+                        <BuildingStorefrontIcon className="h-6 w-6" />
+                      </div>
+                      <h3 className="ml-3 font-semibold text-lg">Lender</h3>
+                    </div>
+                    <p className="text-sm text-surface-600 dark:text-surface-400">
+                      List your designer items for others to rent and earn income from your wardrobe
+                    </p>
+                  </div>
+                </div>
+                
+                {/* Role-specific information */}
+                {formData.roles.includes('renter') && !formData.roles.includes('lender') && (
+                  <div className="mt-4 p-4 bg-surface-100 dark:bg-surface-800 rounded-lg text-sm">
+                    <p className="text-surface-700 dark:text-surface-300">As a <span className="font-semibold">Renter</span>, you'll get access to thousands of designer items at a fraction of the retail price.</p>
+                  </div>
+                )}
+                {formData.roles.includes('lender') && !formData.roles.includes('renter') && (
+                  <div className="mt-4 p-4 bg-surface-100 dark:bg-surface-800 rounded-lg text-sm">
+                    <p className="text-surface-700 dark:text-surface-300">As a <span className="font-semibold">Lender</span>, you'll be able to list your items, set rental prices, and manage availability.</p>
+                  </div>
+                )}
+                {errors.roles && <p className="text-red-500 text-sm mt-2">{errors.roles}</p>}
+              </div>
+
               <label htmlFor="name" className="block text-sm font-medium text-surface-700 dark:text-surface-300">Full Name</label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -214,56 +301,7 @@ function SignUp() {
               Create Account
             </button>
 
-            <div className="flex items-center justify-center">
-            {/* User Role Selection */}
-            <div className="space-y-3 mt-6">
-              <label className="block text-sm font-medium text-surface-700 dark:text-surface-300">
-                I want to use StyleSwap as a:
-              </label>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div 
-                  className={`flex items-start p-4 border rounded-lg cursor-pointer transition-all ${
-                    formData.roles.includes('renter') 
-                      ? 'border-primary bg-primary/5 dark:bg-primary/10'  
-                      : 'border-surface-300 dark:border-surface-600'
-                  }`}
-                  onClick={() => handleRoleChange('renter')}
-                >
-                  <input
-                    type="checkbox"
-                    checked={formData.roles.includes('renter')}
-                    onChange={() => handleRoleChange('renter')}
-                    className="h-5 w-5 text-primary rounded"
-                  />
-                  <div className="ml-3">
-                    <h3 className="font-medium">Renter</h3>
-                  </div>
-                </div>
-                
-                <div
-                  className={`flex items-start p-4 border rounded-lg cursor-pointer transition-all ${
-                    formData.roles.includes('lender') 
-                      ? 'border-primary bg-primary/5 dark:bg-primary/10'  
-                      : 'border-surface-300 dark:border-surface-600'
-                  }`}
-                  onClick={() => handleRoleChange('lender')}
-                >
-                  <input
-                    type="checkbox"
-                    checked={formData.roles.includes('lender')}
-                    onChange={() => handleRoleChange('lender')}
-                    className="h-5 w-5 text-primary rounded"
-                  />
-                  <div className="ml-3">
-                    <h3 className="font-medium">Lender</h3>
-                    <p className="text-sm text-surface-500 dark:text-surface-400">List your designer items for others to rent</p>
-                  </div>
-                </div>
-              </div>
-              {errors.roles && <p className="text-red-500 text-sm mt-1">{errors.roles}</p>}
-            </div>
-
+            <div className="flex items-center justify-center mt-6">
               <div className="h-px bg-surface-200 dark:bg-surface-700 w-full"></div>
               <div className="px-4 text-sm text-surface-500 dark:text-surface-400">or continue with</div>
               <div className="h-px bg-surface-200 dark:bg-surface-700 w-full"></div>
@@ -320,6 +358,13 @@ function SignUp() {
         <div className="max-w-md mx-auto">
           <h2 className="text-3xl font-bold mb-8">Join StyleSwap Today</h2>
           <p className="text-lg mb-8">Become part of our community and experience fashion in a sustainable way.</p>
+          
+          {formData.roles.includes('lender') && (
+            <div className="mb-8 bg-white/10 p-4 rounded-lg">
+              <h3 className="text-xl font-semibold mb-2 flex items-center"><DollarSignIcon className="mr-2 h-5 w-5" /> Earn Money with Your Wardrobe</h3>
+              <p>As a Lender, you can earn up to $500 monthly by sharing your designer items with the community.</p>
+            </div>
+          )}
           
           <ul className="space-y-6">
             <li className="flex items-start">
