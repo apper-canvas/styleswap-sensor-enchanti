@@ -24,7 +24,7 @@ function SignUp() {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
-    confirmPassword: '',
+    roles: 'renter',  // Default role is renter
     roles: ['renter'],  // Default role is renter
     agreeToTerms: false
   });
@@ -51,16 +51,11 @@ function SignUp() {
   };
 
   const handleRoleChange = (role) => {
-    // If clicking on 'both', select both roles
-    if (role === 'both') {
-      setFormData({ ...formData, roles: ['renter', 'lender'] });
-    } else {
-      // Toggle the selected role
-      const newRoles = formData.roles.includes(role) 
-        ? formData.roles.filter(r => r !== role) 
-        : [...formData.roles, role];
-      setFormData({ ...formData, roles: newRoles.length ? newRoles : ['renter'] }); // Ensure at least one role
-    }
+    // Set the selected role directly
+    setFormData({ ...formData, roles: role });
+    
+    // Show a toast confirmation of role selection
+    toast.info(`You've selected the ${role} role`);
     
     // Clear role error when making a selection
     if (errors.roles) {
@@ -69,9 +64,6 @@ function SignUp() {
         roles: ''
       });
     }
-    
-    // Show a toast confirmation of role selection
-    toast.info(`You've selected ${role === 'both' ? 'both roles' : `the ${role} role`}`);
   };
 
   const validateForm = () => {
@@ -96,10 +88,10 @@ function SignUp() {
       errors.agreeToTerms = 'You must agree to the terms and conditions';
     }
     
-    setErrors(errors);
-    if (formData.roles.length === 0) {
+    if (!formData.roles) {
       errors.roles = 'Please select at least one role';
     }
+    setErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
@@ -148,19 +140,19 @@ function SignUp() {
                   {/* Renter Option */}
                   <div 
                     className={`relative flex flex-col p-5 border-2 rounded-xl cursor-pointer transition-all ${
-                      formData.roles.includes('renter') 
-                        ? 'border-primary dark:border-primary-light bg-primary/5 dark:bg-primary/10 shadow-md'  
+                      formData.roles === 'renter' 
+                        ? 'border-primary dark:border-primary-light bg-primary/5 dark:bg-primary/10 shadow-md'
                         : 'border-surface-300 dark:border-surface-600 hover:border-surface-400 dark:hover:border-surface-500'
                     }`}
                     onClick={() => handleRoleChange('renter')}
                   >
-                    {formData.roles.includes('renter') && (
+                    {formData.roles === 'renter' && (
                       <div className="absolute top-3 right-3 bg-primary text-white rounded-full p-1">
                         <CheckIcon className="h-4 w-4" />
                       </div>
                     )}
                     <div className="flex items-center mb-3">
-                      <div className={`p-2 rounded-full ${formData.roles.includes('renter') ? 'bg-primary/20 text-primary' : 'bg-surface-200 dark:bg-surface-700 text-surface-600 dark:text-surface-400'}`}>
+                      <div className={`p-2 rounded-full ${formData.roles === 'renter' ? 'bg-primary/20 text-primary' : 'bg-surface-200 dark:bg-surface-700 text-surface-600 dark:text-surface-400'}`}>
                         <UserIcon className="h-6 w-6" />
                       </div>
                       <h3 className="ml-3 font-semibold text-lg">Renter</h3>
@@ -173,19 +165,19 @@ function SignUp() {
                   {/* Lender Option */}
                   <div
                     className={`relative flex flex-col p-5 border-2 rounded-xl cursor-pointer transition-all ${
-                      formData.roles.includes('lender') 
+                      formData.roles === 'lender' 
                         ? 'border-primary dark:border-primary-light bg-primary/5 dark:bg-primary/10 shadow-md'  
                         : 'border-surface-300 dark:border-surface-600 hover:border-surface-400 dark:hover:border-surface-500'
                     }`}
                     onClick={() => handleRoleChange('lender')}
                   >
-                    {formData.roles.includes('lender') && (
+                    {formData.roles === 'lender' && (
                       <div className="absolute top-3 right-3 bg-primary text-white rounded-full p-1">
                         <CheckIcon className="h-4 w-4" />
                       </div>
                     )}
                     <div className="flex items-center mb-3">
-                      <div className={`p-2 rounded-full ${formData.roles.includes('lender') ? 'bg-primary/20 text-primary' : 'bg-surface-200 dark:bg-surface-700 text-surface-600 dark:text-surface-400'}`}>
+                      <div className={`p-2 rounded-full ${formData.roles === 'lender' ? 'bg-primary/20 text-primary' : 'bg-surface-200 dark:bg-surface-700 text-surface-600 dark:text-surface-400'}`}>
                         <BuildingStorefrontIcon className="h-6 w-6" />
                       </div>
                       <h3 className="ml-3 font-semibold text-lg">Lender</h3>
@@ -197,12 +189,12 @@ function SignUp() {
                 </div>
                 
                 {/* Role-specific information */}
-                {formData.roles.includes('renter') && !formData.roles.includes('lender') && (
+                {formData.roles === 'renter' && (
                   <div className="mt-4 p-4 bg-surface-100 dark:bg-surface-800 rounded-lg text-sm">
                     <p className="text-surface-700 dark:text-surface-300">As a <span className="font-semibold">Renter</span>, you'll get access to thousands of designer items at a fraction of the retail price.</p>
                   </div>
                 )}
-                {formData.roles.includes('lender') && !formData.roles.includes('renter') && (
+                {formData.roles === 'lender' && (
                   <div className="mt-4 p-4 bg-surface-100 dark:bg-surface-800 rounded-lg text-sm">
                     <p className="text-surface-700 dark:text-surface-300">As a <span className="font-semibold">Lender</span>, you'll be able to list your items, set rental prices, and manage availability.</p>
                   </div>
@@ -359,7 +351,7 @@ function SignUp() {
           <h2 className="text-3xl font-bold mb-8">Join StyleSwap Today</h2>
           <p className="text-lg mb-8">Become part of our community and experience fashion in a sustainable way.</p>
           
-          {formData.roles.includes('lender') && (
+          {formData.roles === 'lender' && (
             <div className="mb-8 bg-white/10 p-4 rounded-lg">
               <h3 className="text-xl font-semibold mb-2 flex items-center"><DollarSignIcon className="mr-2 h-5 w-5" /> Earn Money with Your Wardrobe</h3>
               <p>As a Lender, you can earn up to $500 monthly by sharing your designer items with the community.</p>
