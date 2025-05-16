@@ -87,11 +87,17 @@ export default function ItemDetail() {
     setLoading(true);
     const foundItem = items.find(item => item.id.toString() === id.toString());
     
+    // Check if item is in wishlist
+    const wishlistItems = JSON.parse(localStorage.getItem('wishlistItems') || '[]');
+    const isItemInWishlist = wishlistItems.includes(parseInt(id));
+    
     setTimeout(() => {
       if (foundItem) {
         setItem(foundItem);
         setSelectedSize(foundItem.sizes[0]);
+        setIsInWishlist(isItemInWishlist);
       } else {
+        setIsInWishlist(false);
         toast.error("Item not found");
         navigate('/browse');
       }
@@ -109,11 +115,16 @@ export default function ItemDetail() {
   };
 
   const addToBag = () => {
+      }
+      
+      if (newState) {
+        toast.success(`${item.title} added to your wishlist!`);
+      } else {
+        toast.info(`${item.title} removed from your wishlist`);
     if (!selectedSize) {
       toast.error("Please select a size first");
-      return;
-    }
-    
+    });
+  };
     toast.success(`${item.title} added to your bag!`);
   };
 

@@ -149,6 +149,12 @@ export default function Browse() {
 
   // Parse URL params on component mount
   useEffect(() => {
+    // Load wishlist items from localStorage
+    try {
+      const savedWishlist = JSON.parse(localStorage.getItem('wishlistItems') || '[]');
+      setWishlistItems(savedWishlist);
+    } catch (error) { /* Handle parsing error */ }
+    
     const params = new URLSearchParams(location.search);
     const occasionParam = params.get('occasion');
     
@@ -273,14 +279,20 @@ export default function Browse() {
     toast.success(`Item added to your wishlist!`);
   };
 
-  const addToBag = (item) => {
+      let newWishlist;
+      
+      if (prevItems.includes(itemId)) {
     // Prevent navigation when clicking the rent now button
-    event.stopPropagation();
+        newWishlist = prevItems.filter(id => id !== itemId);
     toast.success(`${item.title} added to your bag!`);
   };
-
+        newWishlist = [...prevItems, itemId];
   const navigateToItemDetail = (itemId) => {
-    navigate(`/item/${itemId}`);
+      
+      // Save to localStorage for persistence
+      localStorage.setItem('wishlistItems', JSON.stringify(newWishlist));
+      return newWishlist;
+    });
     toast.info('Viewing item details');
   };
 
