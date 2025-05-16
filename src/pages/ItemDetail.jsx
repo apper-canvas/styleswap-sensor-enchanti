@@ -334,7 +334,6 @@ export default function ItemDetail() {
             
             {/* Rental Period */}
             <DateRangeSelector item={item} startDate={startDate} endDate={endDate} setStartDate={setStartDate} setEndDate={setEndDate} />
-            </div>
             
             {/* Specifications */}
             <div>
