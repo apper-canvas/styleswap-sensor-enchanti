@@ -13,8 +13,8 @@ const XIcon = getIcon('X');
 const CheckIcon = getIcon('Check');
 const StarIcon = getIcon('Star');
 const TrendingUpIcon = getIcon('TrendingUp');
-  };
 
+const DressIcon = getIcon('Dress');
 const BriefcaseIcon = getIcon('Briefcase');
 const UmbrellaIcon = getIcon('Umbrella');
 const GlassesIcon = getIcon('Glasses');
@@ -30,7 +30,6 @@ export default function Home() {
   const handleSignUp = () => {
     navigate('/login?tab=register');
   };
-  const [activeCategory, setActiveCategory] = useState('All');
 
   const featuredItems = [
     {
@@ -51,6 +50,7 @@ export default function Home() {
       image: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&q=80&w=500&h=600",
       category: "Business"
     },
+    {
       title: "Crystal Embellished Clutch",
       designer: "Jimmy Choo",
       retailPrice: 1800,
@@ -87,6 +87,7 @@ export default function Home() {
     },
   ];
   
+  const categories = [
     { id: 'dresses', name: 'Dresses', icon: DressIcon },
     { id: 'business', name: 'Business', icon: BriefcaseIcon },
     { id: 'vacation', name: 'Vacation', icon: UmbrellaIcon },
