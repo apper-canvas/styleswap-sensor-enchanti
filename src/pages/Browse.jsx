@@ -638,45 +638,46 @@ export default function Browse() {
                   onClick={() => navigateToItemDetail(item.id)}
                   style={{ cursor: 'pointer' }}
                 >
-              <div className="relative h-80 overflow-hidden">
-                <img 
-                  src={item.image} 
-                  alt={item.title}
-                  className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
-                />
-                <button
-                  onClick={(e) => { e.stopPropagation(); toggleWishlist(item.id, e); }}
-                  className="absolute top-3 right-3 p-2 rounded-full bg-white/80 hover:bg-white shadow-md z-10 cursor-pointer"
-                >
-                  <HeartIcon className={`w-5 h-5 ${wishlistItems.includes(item.id) ? 'text-primary fill-primary' : 'text-surface-700 hover:text-primary'}`} />
-                </button>
-                <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent">
-                  <div className="px-2 py-1 text-xs font-semibold text-white bg-primary rounded-full inline-block mb-2">
-                    {item.category}
+                  <div className="relative h-80 overflow-hidden">
+                    <img 
+                      src={item.image} 
+                      alt={item.title}
+                      className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <button
+                      onClick={(e) => { e.stopPropagation(); toggleWishlist(item.id, e); }}
+                      className="absolute top-3 right-3 p-2 rounded-full bg-white/80 hover:bg-white shadow-md z-10 cursor-pointer"
+                    >
+                      <HeartIcon className={`w-5 h-5 ${wishlistItems.includes(item.id) ? 'text-primary fill-primary' : 'text-surface-700 hover:text-primary'}`} />
+                    </button>
+                    <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent">
+                      <div className="px-2 py-1 text-xs font-semibold text-white bg-primary rounded-full inline-block mb-2">
+                        {item.category}
+                      </div>
+                    </div>
+                    <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                      <button
+                        onClick={(e) => { e.stopPropagation(); addToBag(item); }}
+                        className="btn-primary transform -translate-y-4 group-hover:translate-y-0 transition-all duration-300 cursor-pointer"
+                      >
+                        Rent Now
+                      </button>
+                    </div>
                   </div>
-                </div>
-                <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                  <button
-                    onClick={(e) => { e.stopPropagation(); addToBag(item); }}
-                    className="btn-primary transform -translate-y-4 group-hover:translate-y-0 transition-all duration-300 cursor-pointer"
-                  >
-                    Rent Now
-                  </button>
-                </div>
-              </div>
-              <div className="p-4">
-                <h3 className="font-semibold text-lg mb-1">{item.title}</h3>
-                <p className="text-surface-500 dark:text-surface-400 text-sm mb-2">{item.designer}</p>
-                <div className="flex justify-between items-center">
-                  <div>
-                    <p className="text-surface-400 dark:text-surface-500 text-xs line-through">${item.retailPrice} retail</p>
-                    <p className="text-primary font-bold">${item.rentalPrice} to rent</p>
+                  <div className="p-4">
+                    <h3 className="font-semibold text-lg mb-1">{item.title}</h3>
+                    <p className="text-surface-500 dark:text-surface-400 text-sm mb-2">{item.designer}</p>
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <p className="text-surface-400 dark:text-surface-500 text-xs line-through">${item.retailPrice} retail</p>
+                        <p className="text-primary font-bold">${item.rentalPrice} to rent</p>
+                      </div>
+                      <div className="flex items-center">
+                        <StarIcon className="w-4 h-4 text-accent mr-1" />
+                        <span className="text-sm font-medium">{item.rating}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="flex items-center">
-                    <StarIcon className="w-4 h-4 text-accent mr-1" />
-                    <span className="text-sm font-medium">{item.rating}</span>
-                  </div>
-                </div>
               </motion.div>
               ))}
             </div>
