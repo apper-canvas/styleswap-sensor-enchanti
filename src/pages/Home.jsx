@@ -125,6 +125,10 @@ export default function Home() {
     <div className="min-h-screen">
       {/* Header Navigation */}
       <header className="sticky top-0 z-50 bg-white dark:bg-surface-800 shadow-sm">
+  const handleRentNow = () => {
+    navigate('/browse');
+  };
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
@@ -225,7 +229,7 @@ export default function Home() {
                 <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4">Rent Designer Fashion for Any Occasion</h1>
                 <p className="text-xl text-white/90 mb-8">Access high-end fashion without the high-end price tag.</p>
                 <div className="flex flex-col sm:flex-row gap-4">
-                  <button className="btn bg-white text-primary hover:bg-surface-100 px-8 py-3 text-lg">
+                  <button onClick={handleRentNow} className="btn bg-white text-primary hover:bg-surface-100 px-8 py-3 text-lg">
                     Rent Now
                   </button>
                   <button onClick={handleSignUp} className="btn bg-primary text-white hover:bg-primary-dark px-8 py-3 text-lg">
