@@ -23,6 +23,7 @@ export default function Browse() {
   const [wishlistItems, setWishlistItems] = useState([]);
   const [showFilters, setShowFilters] = useState(true);
   const [activeCategory, setActiveCategory] = useState('All');
+  const [activeFilters, setActiveFilters] = useState(0);
   const [sortBy, setSortBy] = useState('newest');
   const [occasion, setOccasion] = useState('');
   const [priceRange, setPriceRange] = useState([0, 500]);
@@ -177,6 +178,17 @@ export default function Browse() {
   };
 
   // Apply filters and sorting
+  const applyFilters = () => {
+    // Count active filters
+    const filterCount = selectedSizes.length + 
+                       selectedDesigners.length + 
+                       selectedColors.length + 
+                       (activeCategory !== 'All' ? 1 : 0) + 
+                       (occasion ? 1 : 0);
+    setActiveFilters(filterCount);
+    toast.success(`Filters applied! Showing ${filteredItems.length} items`);
+  };
+  
   const filteredItems = items.filter(item => {
     // Filter by search query
     if (searchQuery && !item.title.toLowerCase().includes(searchQuery.toLowerCase()) && 
@@ -269,6 +281,16 @@ export default function Browse() {
     toast.info("All filters have been cleared");
   };
 
+  // Update count of active filters
+  useEffect(() => {
+    const filterCount = selectedSizes.length + 
+                       selectedDesigners.length + 
+                       selectedColors.length + 
+                       (activeCategory !== 'All' ? 1 : 0) + 
+                       (occasion ? 1 : 0);
+    setActiveFilters(filterCount);
+  }, [selectedSizes, selectedDesigners, selectedColors, activeCategory, occasion]);
+
   const handleSearch = (e) => {
     e.preventDefault();
     toast.info(`Searching for "${searchQuery}"...`);
@@ -289,7 +311,7 @@ export default function Browse() {
       localStorage.setItem('wishlistItems', JSON.stringify(newWishlist));
       return newWishlist;
     });
-  };
+  }; 
   
   const navigateToItemDetail = (itemId) => {
     toast.info('Viewing item details');
@@ -300,6 +322,16 @@ export default function Browse() {
     toast.success(`${item.title} added to your bag!`);
     // Implementation for adding to bag would go here
   };
+
+  // Toggle collapse for filter sections
+  const [collapsedSections, setCollapsedSections] = useState({
+    categories: false,
+    price: false,
+    sizes: false,
+    designers: false,
+    colors: false
+  });
+  const toggleSection = (section) => setCollapsedSections({...collapsedSections, [section]: !collapsedSections[section]});
 
   return (
     <div className="min-h-screen bg-surface-50 dark:bg-surface-900">
@@ -346,7 +378,7 @@ export default function Browse() {
             <div className="flex items-center gap-4">
               <button 
                 onClick={() => setShowFilters(!showFilters)}
-                className="hidden md:flex items-center gap-1 text-surface-600 dark:text-surface-300 hover:text-primary"
+                className="hidden md:flex items-center gap-1 text-surface-600 dark:text-surface-300 hover:text-primary relative"
               >
                 <FilterIcon className="w-5 h-5" />
                 {showFilters ? 'Hide Filters' : 'Show Filters'}
@@ -355,10 +387,15 @@ export default function Browse() {
               <div className="md:hidden">
                 <button 
                   onClick={() => setMobileFiltersOpen(true)}
-                  className="flex items-center gap-1 text-surface-600 dark:text-surface-300"
+                  className="flex items-center gap-1 text-surface-600 dark:text-surface-300 relative"
                 >
                   <FilterIcon className="w-5 h-5" />
                   Filters
+                  {activeFilters > 0 && (
+                    <span className="absolute -top-2 -right-2 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                      {activeFilters}
+                    </span>
+                  )}
                 </button>
               </div>
               
@@ -395,16 +432,212 @@ export default function Browse() {
             </div>
           )}
         </div>
+
+        <div className="flex gap-6 mt-6">
+          {/* Filter sidebar - desktop */}
+          {showFilters && (
+            <div className="hidden md:block w-64 shrink-0">
+              <div className="bg-white dark:bg-surface-800 rounded-xl p-5 sticky top-20 max-h-[calc(100vh-5rem)] overflow-y-auto">
+                <div className="flex justify-between items-center mb-5">
+                  <h2 className="font-semibold text-lg">Filters</h2>
+                  {activeFilters > 0 && (
+                    <button 
+                      onClick={clearAllFilters}
+                      className="text-xs text-primary hover:text-primary-dark"
+                    >
+                      Clear all
+                    </button>
+                  )}
+                </div>
+
+                {/* Categories section */}
+                <div className="mb-6">
+                  <button 
+                    className="w-full flex justify-between items-center mb-3"
+                    onClick={() => toggleSection('categories')}
+                  >
+                    <h3 className="font-medium">Categories</h3>
+                    <ChevronDownIcon className={`w-5 h-5 transition-transform ${collapsedSections.categories ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {!collapsedSections.categories && (
+                    <div className="pl-2 space-y-2 max-h-60 overflow-y-auto">
+                      {categories.map(category => (
+                        <div key={category} className="flex items-center">
+                          <input
+                            type="radio"
+                            id={`category-${category}`}
+                            name="category"
+                            checked={activeCategory === category}
+                            onChange={() => setActiveCategory(category)}
+                            className="mr-2"
+                          />
+                          <label htmlFor={`category-${category}`} className="text-sm">{category}</label>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Price range section */}
+                <div className="mb-6">
+                  <button 
+                    className="w-full flex justify-between items-center mb-3"
+                    onClick={() => toggleSection('price')}
+                  >
+                    <h3 className="font-medium">Price Range</h3>
+                    <ChevronDownIcon className={`w-5 h-5 transition-transform ${collapsedSections.price ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {!collapsedSections.price && (
+                    <div className="px-2">
+                      <div className="flex justify-between mb-2">
+                        <span className="text-xs text-surface-500">${priceRange[0]}</span>
+                        <span className="text-xs text-surface-500">${priceRange[1]}</span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max="500"
+                        value={priceRange[1]}
+                        onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
+                        className="w-full accent-primary cursor-pointer"
+                      />
+                      <div className="flex gap-2 mt-2">
+                        <input
+                          type="number"
+                          min="0"
+                          max={priceRange[1]}
+                          value={priceRange[0]}
+                          onChange={(e) => setPriceRange([Math.min(parseInt(e.target.value), priceRange[1]), priceRange[1]])}
+                          className="w-full input-field p-1 text-sm"
+                          placeholder="Min"
+                        />
+                        <input
+                          type="number"
+                          min={priceRange[0]}
+                          max="500"
+                          value={priceRange[1]}
+                          onChange={(e) => setPriceRange([priceRange[0], Math.max(parseInt(e.target.value), priceRange[0])])}
+                          className="w-full input-field p-1 text-sm"
+                          placeholder="Max"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Sizes section */}
+                <div className="mb-6">
+                  <button 
+                    className="w-full flex justify-between items-center mb-3"
+                    onClick={() => toggleSection('sizes')}
+                  >
+                    <h3 className="font-medium">Sizes</h3>
+                    <ChevronDownIcon className={`w-5 h-5 transition-transform ${collapsedSections.sizes ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {!collapsedSections.sizes && (
+                    <div className="grid grid-cols-3 gap-2 pl-2">
+                      {sizes.map(size => (
+                        <div key={size} className="flex items-center">
+                          <input
+                            type="checkbox"
+                            id={`size-${size}`}
+                            checked={selectedSizes.includes(size)}
+                            onChange={() => toggleSizeFilter(size)}
+                            className="mr-2"
+                          />
+                          <label htmlFor={`size-${size}`} className="text-sm">{size}</label>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Designers section */}
+                <div className="mb-6">
+                  <button 
+                    className="w-full flex justify-between items-center mb-3"
+                    onClick={() => toggleSection('designers')}
+                  >
+                    <h3 className="font-medium">Designers</h3>
+                    <ChevronDownIcon className={`w-5 h-5 transition-transform ${collapsedSections.designers ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {!collapsedSections.designers && (
+                    <div className="pl-2 space-y-2 max-h-40 overflow-y-auto">
+                      {designers.map(designer => (
+                        <div key={designer} className="flex items-center">
+                          <input
+                            type="checkbox"
+                            id={`designer-${designer}`}
+                            checked={selectedDesigners.includes(designer)}
+                            onChange={() => toggleDesignerFilter(designer)}
+                            className="mr-2"
+                          />
+                          <label htmlFor={`designer-${designer}`} className="text-sm">{designer}</label>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Colors section */}
+                <div className="mb-6">
+                  <button 
+                    className="w-full flex justify-between items-center mb-3"
+                    onClick={() => toggleSection('colors')}
+                  >
+                    <h3 className="font-medium">Colors</h3>
+                    <ChevronDownIcon className={`w-5 h-5 transition-transform ${collapsedSections.colors ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {!collapsedSections.colors && (
+                    <div className="pl-2 space-y-2">
+                      {colors.map(color => (
+                        <div key={color} className="flex items-center">
+                          <input
+                            type="checkbox"
+                            id={`color-${color}`}
+                            checked={selectedColors.includes(color)}
+                            onChange={() => toggleColorFilter(color)}
+                            className="mr-2"
+                          />
+                          <label htmlFor={`color-${color}`} className="text-sm flex items-center">
+                            <span 
+                              className="inline-block w-4 h-4 rounded-full mr-2 border border-surface-200" 
+                              style={{ backgroundColor: color.toLowerCase() }}
+                            ></span>
+                            {color}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <button 
+                  onClick={applyFilters}
+                  className="w-full btn-primary py-2 mb-2"
+                >
+                  Apply Filters
+                </button>
+              </div>
+            </div>
+          )}
         
-        {/* Browseable Item Grid - similar structure to the Home page */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {sortedItems.map((item) => (
-            <div
-              key={item.id}
-              className="card group overflow-hidden"
-              onClick={() => navigateToItemDetail(item.id)}
-              style={{ cursor: 'pointer' }}
-            >
+          {/* Main content area */}
+          <div className={`flex-1 ${showFilters ? 'md:pl-4' : ''}`}>
+            {/* Browseable Item Grid - similar structure to the Home page */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {sortedItems.map((item) => (
+                <div
+                  key={item.id}
+                  className="card group overflow-hidden"
+                  onClick={() => navigateToItemDetail(item.id)}
+                  style={{ cursor: 'pointer' }}
+                >
               <div className="relative h-80 overflow-hidden">
                 <img 
                   src={item.image} 
@@ -415,7 +648,7 @@ export default function Browse() {
                   onClick={(e) => { e.stopPropagation(); toggleWishlist(item.id, e); }}
                   className="absolute top-3 right-3 p-2 rounded-full bg-white/80 hover:bg-white shadow-md z-10 cursor-pointer"
                 >
-                  <HeartIcon className="w-5 h-5 text-surface-700 hover:text-primary" />
+                  <HeartIcon className={`w-5 h-5 ${wishlistItems.includes(item.id) ? 'text-primary fill-primary' : 'text-surface-700 hover:text-primary'}`} />
                 </button>
                 <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/70 to-transparent">
                   <div className="px-2 py-1 text-xs font-semibold text-white bg-primary rounded-full inline-block mb-2">
@@ -445,9 +678,191 @@ export default function Browse() {
                   </div>
                 </div>
               </div>
+              ))}
             </div>
-          ))}
+            
+            {sortedItems.length === 0 && (
+              <div className="text-center py-12">
+                <h3 className="text-xl font-semibold mb-2">No items match your filters</h3>
+                <p className="text-surface-500 dark:text-surface-400 mb-6">Try adjusting your filters or search query</p>
+                <button 
+                  onClick={clearAllFilters}
+                  className="btn-primary"
+                >
+                  Clear All Filters
+                </button>
+              </div>
+            )}
+          </div>
+          
         </div>
+
+        {/* Mobile filters drawer */}
+        {mobileFiltersOpen && (
+          <div className="fixed inset-0 z-50 overflow-hidden md:hidden">
+            <div className="absolute inset-0 bg-black/50" onClick={() => setMobileFiltersOpen(false)}></div>
+            
+            <div className="absolute inset-y-0 right-0 max-w-full flex">
+              <div className="w-screen max-w-md">
+                <div className="h-full bg-white dark:bg-surface-800 shadow-xl flex flex-col overflow-y-auto">
+                  <div className="px-4 py-5 border-b border-surface-200 dark:border-surface-700 flex items-center justify-between">
+                    <h2 className="text-lg font-medium">Filters</h2>
+                    <button 
+                      onClick={() => setMobileFiltersOpen(false)}
+                      className="text-surface-500"
+                    >
+                      <XIcon className="w-6 h-6" />
+                    </button>
+                  </div>
+
+                  <div className="flex-1 px-4 py-6 overflow-y-auto">
+                    {/* Categories section */}
+                    <div className="mb-8">
+                      <h3 className="font-medium mb-4">Categories</h3>
+                      <div className="grid grid-cols-2 gap-3">
+                        {categories.map(category => (
+                          <div 
+                            key={category}
+                            onClick={() => setActiveCategory(category)}
+                            className={`px-3 py-2 rounded-lg border text-center text-sm cursor-pointer ${
+                              activeCategory === category 
+                                ? 'bg-primary text-white border-primary' 
+                                : 'border-surface-200 dark:border-surface-700'
+                            }`}
+                          >
+                            {category}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Price range */}
+                    <div className="mb-8">
+                      <h3 className="font-medium mb-4">Price Range</h3>
+                      <div className="px-2">
+                        <div className="flex justify-between mb-2">
+                          <span className="text-sm text-surface-500">${priceRange[0]}</span>
+                          <span className="text-sm text-surface-500">${priceRange[1]}</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="0"
+                          max="500"
+                          value={priceRange[1]}
+                          onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
+                          className="w-full accent-primary cursor-pointer"
+                        />
+                        <div className="flex gap-2 mt-4">
+                          <input
+                            type="number"
+                            min="0"
+                            max={priceRange[1]}
+                            value={priceRange[0]}
+                            onChange={(e) => setPriceRange([Math.min(parseInt(e.target.value), priceRange[1]), priceRange[1]])}
+                            className="w-full input-field px-3 py-2 text-sm"
+                            placeholder="Min"
+                          />
+                          <input
+                            type="number"
+                            min={priceRange[0]}
+                            max="500"
+                            value={priceRange[1]}
+                            onChange={(e) => setPriceRange([priceRange[0], Math.max(parseInt(e.target.value), priceRange[0])])}
+                            className="w-full input-field px-3 py-2 text-sm"
+                            placeholder="Max"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Sizes */}
+                    <div className="mb-8">
+                      <h3 className="font-medium mb-4">Sizes</h3>
+                      <div className="grid grid-cols-4 gap-3">
+                        {sizes.map(size => (
+                          <div 
+                            key={size}
+                            onClick={() => toggleSizeFilter(size)}
+                            className={`px-3 py-2 rounded-lg border text-center text-sm cursor-pointer ${
+                              selectedSizes.includes(size) 
+                                ? 'bg-primary text-white border-primary' 
+                                : 'border-surface-200 dark:border-surface-700'
+                            }`}
+                          >
+                            {size}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Designers */}
+                    <div className="mb-8">
+                      <h3 className="font-medium mb-4">Designers</h3>
+                      <div className="space-y-3">
+                        {designers.map(designer => (
+                          <div key={designer} className="flex items-center">
+                            <input
+                              type="checkbox"
+                              id={`mobile-designer-${designer}`}
+                              checked={selectedDesigners.includes(designer)}
+                              onChange={() => toggleDesignerFilter(designer)}
+                              className="mr-3 w-4 h-4"
+                            />
+                            <label htmlFor={`mobile-designer-${designer}`} className="text-sm">{designer}</label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Colors */}
+                    <div className="mb-8">
+                      <h3 className="font-medium mb-4">Colors</h3>
+                      <div className="grid grid-cols-2 gap-3">
+                        {colors.map(color => (
+                          <div key={color} className="flex items-center">
+                            <input
+                              type="checkbox"
+                              id={`mobile-color-${color}`}
+                              checked={selectedColors.includes(color)}
+                              onChange={() => toggleColorFilter(color)}
+                              className="mr-3 w-4 h-4"
+                            />
+                            <label htmlFor={`mobile-color-${color}`} className="text-sm flex items-center">
+                              <span 
+                                className="inline-block w-4 h-4 rounded-full mr-2 border border-surface-200" 
+                                style={{ backgroundColor: color.toLowerCase() }}
+                              ></span>
+                              {color}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="border-t border-surface-200 dark:border-surface-700 px-4 py-5 flex flex-col gap-3">
+                    <button 
+                      onClick={clearAllFilters}
+                      className="w-full btn-outline"
+                    >
+                      Clear All
+                    </button>
+                    <button 
+                      onClick={() => {
+                        applyFilters();
+                        setMobileFiltersOpen(false);
+                      }}
+                      className="w-full btn-primary py-3"
+                    >
+                      Apply Filters
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         
         {sortedItems.length === 0 && (
           <div className="text-center py-12">
