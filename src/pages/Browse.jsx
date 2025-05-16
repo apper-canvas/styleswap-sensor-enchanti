@@ -268,11 +268,20 @@ export default function Browse() {
   };
 
   const toggleWishlist = (itemId) => {
+    // Prevent navigation when clicking the wishlist button
+    event.stopPropagation();
     toast.success(`Item added to your wishlist!`);
   };
 
   const addToBag = (item) => {
+    // Prevent navigation when clicking the rent now button
+    event.stopPropagation();
     toast.success(`${item.title} added to your bag!`);
+  };
+
+  const navigateToItemDetail = (itemId) => {
+    navigate(`/item/${itemId}`);
+    toast.info('Viewing item details');
   };
 
   return (
@@ -376,6 +385,8 @@ export default function Browse() {
             <div
               key={item.id}
               className="card group overflow-hidden"
+              onClick={() => navigateToItemDetail(item.id)}
+              style={{ cursor: 'pointer' }}
             >
               <div className="relative h-80 overflow-hidden">
                 <img 
@@ -385,7 +396,8 @@ export default function Browse() {
                 />
                 <button
                   onClick={() => toggleWishlist(item.id)}
-                  className="absolute top-3 right-3 p-2 rounded-full bg-white/80 hover:bg-white shadow-md z-10"
+                  onClick={(e) => { e.stopPropagation(); toggleWishlist(item.id); }}
+                  className="absolute top-3 right-3 p-2 rounded-full bg-white/80 hover:bg-white shadow-md z-10 cursor-pointer"
                 >
                   <HeartIcon className="w-5 h-5 text-surface-700 hover:text-primary" />
                 </button>
@@ -396,7 +408,8 @@ export default function Browse() {
                 </div>
                 <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                   <button
-                    onClick={() => addToBag(item)}
+                    onClick={(e) => { e.stopPropagation(); addToBag(item); }}
+                    className="btn-primary transform -translate-y-4 group-hover:translate-y-0 transition-all duration-300 cursor-pointer"
                     className="btn-primary transform -translate-y-4 group-hover:translate-y-0 transition-all duration-300"
                   >
                     Rent Now

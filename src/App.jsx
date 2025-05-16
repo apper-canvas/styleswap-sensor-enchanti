@@ -9,6 +9,7 @@ import CreateListing from './pages/CreateListing';
 import SignUp from './pages/SignUp';
 import Login from './pages/Login';
 import getIcon from './utils/iconUtils';
+import ItemDetail from './pages/ItemDetail';
 
 const MoonIcon = getIcon('Moon');
 const SunIcon = getIcon('Sun');
@@ -138,6 +139,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/browse" element={<Browse />} />
+        <Route path="/item/:id" element={<ItemDetail />} />
         <Route path="/create-listing" element={<CreateListing />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
