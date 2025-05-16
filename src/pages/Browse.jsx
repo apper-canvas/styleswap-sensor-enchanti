@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 import getIcon from '../utils/iconUtils';
@@ -14,13 +14,16 @@ const ChevronDownIcon = getIcon('ChevronDown');
 const FilterIcon = getIcon('Filter');
 const SortIcon = getIcon('ArrowUpDown');
 const StarIcon = getIcon('Star');
+const XCircleIcon = getIcon('XCircle');
 
 export default function Browse() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(true);
   const [activeCategory, setActiveCategory] = useState('All');
   const [sortBy, setSortBy] = useState('newest');
+  const [occasion, setOccasion] = useState('');
   const [priceRange, setPriceRange] = useState([0, 500]);
   const [selectedSizes, setSelectedSizes] = useState([]);
   const [selectedDesigners, setSelectedDesigners] = useState([]);
@@ -128,7 +131,7 @@ export default function Browse() {
   ];
 
   const categories = [
-    "All", "Dresses", "Tops", "Bottoms", "Outerwear", "Accessories", "Shoes", "Jewelry", "Business", "Vacation"
+    "All", "Dresses", "Tops", "Bottoms", "Outerwear", "Accessories", "Shoes", "Jewelry", "Business", "Vacation", "Wedding", "Party", "Formal"
   ];
 
   const sizes = ["XXS", "XS", "S", "M", "L", "XL", "XXL", "One Size"];
@@ -144,6 +147,28 @@ export default function Browse() {
     { value: "popular", label: "Most Popular" }
   ];
 
+  // Parse URL params on component mount
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const occasionParam = params.get('occasion');
+    
+    if (occasionParam) {
+      setOccasion(occasionParam);
+      // If occasion is a category, set it as active
+      if (categories.map(c => c.toLowerCase()).includes(occasionParam.toLowerCase())) {
+        setActiveCategory(occasionParam.charAt(0).toUpperCase() + occasionParam.slice(1));
+      }
+      toast.info(`Showing items for ${occasionParam} occasions`);
+    }
+  }, [location.search]);
+  
+  // Clear occasion filter
+  const clearOccasionFilter = () => {
+    setOccasion('');
+    navigate('/browse');
+    toast.info("Occasion filter cleared");
+  };
+
   // Apply filters and sorting
   const filteredItems = items.filter(item => {
     // Filter by search query
@@ -155,6 +180,12 @@ export default function Browse() {
     // Filter by category
     if (activeCategory !== 'All' && item.category !== activeCategory) {
       return false;
+    }
+
+    // Filter by occasion (if not already filtered by category)
+    if (occasion && activeCategory === 'All') {
+      const occasionCategory = occasion.charAt(0).toUpperCase() + occasion.slice(1);
+      if (item.category !== occasionCategory) return false;
     }
     
     // Filter by price range
@@ -226,6 +257,7 @@ export default function Browse() {
     setSelectedSizes([]);
     setSelectedDesigners([]);
     setSelectedColors([]);
+    setOccasion('');
     setSortBy('newest');
     toast.info("All filters have been cleared");
   };
@@ -281,43 +313,61 @@ export default function Browse() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl md:text-3xl font-bold">Browse Collection</h1>
-          
-          <div className="flex items-center gap-4">
-            <button 
-              onClick={() => setShowFilters(!showFilters)}
-              className="hidden md:flex items-center gap-1 text-surface-600 dark:text-surface-300 hover:text-primary"
-            >
-              <FilterIcon className="w-5 h-5" />
-              {showFilters ? 'Hide Filters' : 'Show Filters'}
-            </button>
+        <div className="flex flex-col mb-6">
+          <div className="flex justify-between items-center">
+            <h1 className="text-2xl md:text-3xl font-bold">Browse Collection</h1>
             
-            <div className="md:hidden">
+            <div className="flex items-center gap-4">
               <button 
-                onClick={() => setMobileFiltersOpen(true)}
-                className="flex items-center gap-1 text-surface-600 dark:text-surface-300"
+                onClick={() => setShowFilters(!showFilters)}
+                className="hidden md:flex items-center gap-1 text-surface-600 dark:text-surface-300 hover:text-primary"
               >
                 <FilterIcon className="w-5 h-5" />
-                Filters
+                {showFilters ? 'Hide Filters' : 'Show Filters'}
               </button>
-            </div>
-            
-            <div className="relative">
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="appearance-none bg-white dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg px-4 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-primary text-sm"
-              >
-                {sortOptions.map(option => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              <SortIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-surface-400" />
+              
+              <div className="md:hidden">
+                <button 
+                  onClick={() => setMobileFiltersOpen(true)}
+                  className="flex items-center gap-1 text-surface-600 dark:text-surface-300"
+                >
+                  <FilterIcon className="w-5 h-5" />
+                  Filters
+                </button>
+              </div>
+              
+              <div className="relative">
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="appearance-none bg-white dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-lg px-4 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-primary text-sm"
+                >
+                  {sortOptions.map(option => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+                <SortIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-surface-400" />
+              </div>
             </div>
           </div>
+          
+          {/* Occasion filter indicator */}
+          {occasion && (
+            <div className="mt-4 flex items-center">
+              <span className="text-sm text-surface-600 dark:text-surface-300">
+                Filtered by occasion:
+              </span>
+              <button 
+                className="ml-2 flex items-center gap-1 px-3 py-1 bg-primary/10 text-primary rounded-full text-sm font-medium"
+                onClick={clearOccasionFilter}
+              >
+                {occasion.charAt(0).toUpperCase() + occasion.slice(1)}
+                <XCircleIcon className="w-4 h-4" />
+              </button>
+            </div>
+          )}
         </div>
         
         {/* Browseable Item Grid - similar structure to the Home page */}

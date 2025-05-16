@@ -22,6 +22,13 @@ const GlassesIcon = getIcon('Glasses');
 const ShirtIcon = getIcon('Shirt');
 const WatchIcon = getIcon('Watch');
 
+// Additional icons for occasions
+const CalendarIcon = getIcon('Calendar');
+const PartyPopperIcon = getIcon('PartyPopper');
+const BriefcaseIcon = getIcon('Briefcase');
+const UmbrellaIcon = getIcon('Umbrella');
+const GlassesIcon = getIcon('Glasses');
+
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -49,6 +56,22 @@ export default function Home() {
     }
   };
 
+  // Occasions array
+  const occasions = [
+    { id: 'wedding', name: 'Wedding', icon: CalendarIcon, image: "https://images.unsplash.com/photo-1519741347686-c1e331ec5a7a?auto=format&fit=crop&q=80&w=500&h=600" },
+    { id: 'party', name: 'Party', icon: PartyPopperIcon, image: "https://images.unsplash.com/photo-1496843916299-590492c751f4?auto=format&fit=crop&q=80&w=500&h=600" },
+    { id: 'business', name: 'Business', icon: BriefcaseIcon, image: "https://images.unsplash.com/photo-1600880292089-90a7e086ee0c?auto=format&fit=crop&q=80&w=500&h=600" },
+    { id: 'vacation', name: 'Vacation', icon: UmbrellaIcon, image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=500&h=600" },
+    { id: 'formal', name: 'Formal', icon: GlassesIcon, image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&q=80&w=500&h=600" },
+  ];
+
+  // Navigate to browse page with occasion filter
+  const handleOccasionClick = (occasion) => {
+    navigate(`/browse?occasion=${occasion}`);
+    toast.info(`Browsing outfits for ${occasion} occasions`);
+  };
+
+  // Featured items array
   const featuredItems = [
     {
       id: 1,
@@ -271,6 +294,44 @@ export default function Home() {
         
         {/* Main Feature */}
         <MainFeature />
+        
+        {/* Browse by Occasion Section */}
+        <section className="py-12 bg-white dark:bg-surface-800">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="text-2xl md:text-3xl font-bold mb-8 text-center">Browse by Occasion</h2>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+              {occasions.map((occasion) => {
+                const OccasionIcon = occasion.icon;
+                return (
+                  <motion.div
+                    key={occasion.id}
+                    whileHover={{ y: -8 }}
+                    transition={{ duration: 0.2 }}
+                    className="rounded-xl overflow-hidden shadow-card cursor-pointer relative group"
+                    onClick={() => handleOccasionClick(occasion.name.toLowerCase())}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent z-10" />
+                    <img 
+                      src={occasion.image} 
+                      alt={occasion.name} 
+                      className="h-64 w-full object-cover transition-transform duration-300 group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 flex flex-col items-center justify-center z-20">
+                      <div className="w-16 h-16 mb-3 rounded-full bg-white/90 dark:bg-surface-800/90 flex items-center justify-center shadow-lg">
+                        <OccasionIcon className="w-8 h-8 text-primary" />
+                      </div>
+                      <h3 className="text-xl font-bold text-white">{occasion.name}</h3>
+                      <span className="mt-2 inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-primary text-white">
+                        Browse Now
+                      </span>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
         
         {/* Category Tabs */}
         <section className="py-10 bg-surface-100 dark:bg-surface-800">
