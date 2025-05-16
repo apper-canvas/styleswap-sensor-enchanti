@@ -1,7 +1,10 @@
 import { useState, useEffect, useContext, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { format, differenceInDays, isWithinInterval, parseISO } from 'date-fns';
 import { toast } from 'react-toastify';
 import { motion } from 'framer-motion';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import { ShoppingBagContext } from '../App';
 import getIcon from '../utils/iconUtils';
 
@@ -28,6 +31,8 @@ export default function ItemDetail() {
   const [selectedSize, setSelectedSize] = useState(null);
   const [selectedImage, setSelectedImage] = useState(0);
   const [rentalDays, setRentalDays] = useState(4);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
   const [isInWishlist, setIsInWishlist] = useState(false);
 
   // Sample data - in a real app, this would come from an API
@@ -48,7 +53,7 @@ export default function ItemDetail() {
       color: "Pink",
       colors: ["Pink", "Blue", "White"],
       sizes: ["XS", "S", "M"],
-      availableDates: ["2023-06-15", "2023-06-20"],
+      availableDates: ["2023-11-01", "2023-11-02", "2023-11-03", "2023-11-04", "2023-11-07", "2023-11-08", "2023-11-09", "2023-11-15", "2023-11-16", "2023-11-17", "2023-11-18", "2023-11-19", "2023-11-25", "2023-11-26", "2023-11-27", "2023-11-28", "2023-11-29", "2023-11-30"],
       rating: 4.8,
       reviews: 24,
       occasionTags: ["Wedding", "Party", "Date Night"],
@@ -74,7 +79,7 @@ export default function ItemDetail() {
       color: "Black",
       colors: ["Black", "Navy"],
       sizes: ["S", "M", "L"],
-      availableDates: ["2023-06-10", "2023-06-25"],
+      availableDates: ["2023-11-01", "2023-11-02", "2023-11-03", "2023-11-04", "2023-11-05", "2023-11-10", "2023-11-11", "2023-11-12", "2023-11-20", "2023-11-21", "2023-11-22", "2023-11-23", "2023-11-24"],
       rating: 4.6,
       reviews: 18,
       occasionTags: ["Business", "Formal", "Evening"],
@@ -127,6 +132,12 @@ export default function ItemDetail() {
       return;
     }
 
+    if (!startDate || !endDate) {
+      toast.error("Please select rental dates first");
+      return;
+    }
+    
+    const calculatedRentalDays = differenceInDays(endDate, startDate) + 1;
     // Create an item object with selected options
     const bagItem = {
       id: item.id,
@@ -136,7 +147,10 @@ export default function ItemDetail() {
       image: item.images[0],
       color: item.color,
       size: selectedSize,
-      rentalDays: rentalDays,
+      rentalDays: calculatedRentalDays,
+      rentalStart: format(startDate, 'yyyy-MM-dd'),
+      rentalEnd: format(endDate, 'yyyy-MM-dd'),
+      rentalPeriod: `${format(startDate, 'MMM d')} - ${format(endDate, 'MMM d, yyyy')}`,
       addedAt: new Date().toISOString()
     };
     
@@ -144,7 +158,7 @@ export default function ItemDetail() {
     addItemToBag(bagItem);
     
     // Show success message
-    toast.success(`${item.title} (${selectedSize}) added to your bag!`, {
+    toast.success(`${item.title} (${selectedSize}) added to your bag for ${calculatedRentalDays} days!`, {
       icon: "🛍️"
     });
   };
@@ -155,6 +169,12 @@ export default function ItemDetail() {
       return;
     }
     
+    if (!startDate || !endDate) {
+      toast.error("Please select rental dates first");
+      return;
+    }
+    
+    // Calculate the rental days for checkout
     toast.success(`Proceeding to checkout for ${item.title}`);
     // In a real app, navigate to checkout page
   };
@@ -313,15 +333,7 @@ export default function ItemDetail() {
             </div>
             
             {/* Rental Period */}
-            <div>
-              <h3 className="font-medium mb-2">Rental Period</h3>
-              <div className="flex items-center space-x-4 bg-surface-100 dark:bg-surface-800 p-3 rounded-lg">
-                <CalendarIcon className="w-5 h-5 text-primary" />
-                <div>
-                  <div className="font-medium">4-day rental</div>
-                  <div className="text-sm text-surface-500">Return by mail with prepaid label</div>
-                </div>
-              </div>
+            <DateRangeSelector item={item} startDate={startDate} endDate={endDate} setStartDate={setStartDate} setEndDate={setEndDate} />
             </div>
             
             {/* Specifications */}
@@ -593,5 +605,104 @@ function ImageGallery({ images, title, selectedImage, setSelectedImage }) {
         </div>
       )}
     </>
+  );
+}
+
+function DateRangeSelector({ item, startDate, endDate, setStartDate, setEndDate }) {
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  
+  // Parse available dates from strings to Date objects
+  const availableDatesMap = new Map();
+  
+  // Convert the availableDates array strings to actual Date objects and create a lookup map
+  useEffect(() => {
+    if (item && item.availableDates) {
+      item.availableDates.forEach(dateStr => {
+        availableDatesMap.set(dateStr, true);
+      });
+    }
+  }, [item]);
+  
+  // Function to check if a date is available
+  const isDateAvailable = (date) => {
+    const dateString = format(date, 'yyyy-MM-dd');
+    return item.availableDates.includes(dateString);
+  };
+  
+  // Calculate rental days when dates change
+  const rentalDays = startDate && endDate ? differenceInDays(endDate, startDate) + 1 : 0;
+  
+  // Handle date changes and validate date ranges
+  const handleDateChange = (dates) => {
+    const [start, end] = dates;
+    
+    if (!start) {
+      setStartDate(null);
+      setEndDate(null);
+      return;
+    }
+    
+    setStartDate(start);
+    
+    if (end) {
+      // Check if all dates in range are available
+      let allDatesAvailable = true;
+      let currentDate = new Date(start);
+      
+      while (currentDate <= end) {
+        if (!isDateAvailable(currentDate)) {
+          allDatesAvailable = false;
+          break;
+        }
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+      
+      if (allDatesAvailable) {
+        setEndDate(end);
+      } else {
+        toast.error("Some dates in the selected range are not available");
+        setEndDate(null);
+      }
+    } else {
+      setEndDate(null);
+    }
+  };
+  
+  return (
+    <div>
+      <h3 className="font-medium mb-2">Rental Period</h3>
+      <div className="date-range-selector">
+        <div className="date-display">
+          <div className="date-display-item">
+            <div className="date-label">START DATE</div>
+            <div className="date-value">{startDate ? format(startDate, 'MMM d, yyyy') : 'Select'}</div>
+          </div>
+          <div className="mx-2">-</div>
+          <div className="date-display-item">
+            <div className="date-label">END DATE</div>
+            <div className="date-value">{endDate ? format(endDate, 'MMM d, yyyy') : 'Select'}</div>
+          </div>
+        </div>
+        
+        <DatePicker
+          selected={startDate}
+          onChange={handleDateChange}
+          startDate={startDate}
+          endDate={endDate}
+          selectsRange
+          inline
+          filterDate={isDateAvailable}
+          highlightDates={item.availableDates.map(dateStr => new Date(dateStr))}
+          minDate={new Date()}
+        />
+        
+        {startDate && endDate && (
+          <div className="mt-3 p-3 bg-primary/10 rounded-md text-center">
+            <span className="font-medium text-primary">{rentalDays}-day rental</span>
+            <div className="text-sm text-surface-500">Return by mail with prepaid label</div>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
