@@ -95,12 +95,6 @@ function App() {
     localStorage.setItem('shoppingBag', JSON.stringify(bagItems));
   }, [bagItems]);
 
-  const [darkMode, setDarkMode] = useState(() => {
-    const savedMode = localStorage.getItem('darkMode');
-    return savedMode === 'true' || (
-      !savedMode && window.matchMedia('(prefers-color-scheme: dark)').matches
-    );
-  });
   
   // User role management
   const [roles, setRoles] = useState(() => {
