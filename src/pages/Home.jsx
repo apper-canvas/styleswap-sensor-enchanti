@@ -13,11 +13,6 @@ const XIcon = getIcon('X');
 const CheckIcon = getIcon('Check');
 const StarIcon = getIcon('Star');
 const TrendingUpIcon = getIcon('TrendingUp');
-const DressIcon = getIcon('Shirt');
-  const navigate = useNavigate();
-  
-  const handleSignUp = () => {
-    navigate('/login?tab=register');
   };
 
 const BriefcaseIcon = getIcon('Briefcase');
@@ -29,6 +24,12 @@ const WatchIcon = getIcon('Watch');
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeCategory, setActiveCategory] = useState('All');
+  const navigate = useNavigate();
+  
+  const handleSignUp = () => {
+    navigate('/login?tab=register');
+  };
   const [activeCategory, setActiveCategory] = useState('All');
 
   const featuredItems = [
@@ -50,8 +51,6 @@ export default function Home() {
       image: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&q=80&w=500&h=600",
       category: "Business"
     },
-    {
-              <button onClick={handleSignUp} className="px-6 py-3 text-lg font-semibold rounded-full bg-primary-600 text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors shadow-md">Sign Up</button>
       title: "Crystal Embellished Clutch",
       designer: "Jimmy Choo",
       retailPrice: 1800,
@@ -88,7 +87,6 @@ export default function Home() {
     },
   ];
   
-  const categories = [
     { id: 'dresses', name: 'Dresses', icon: DressIcon },
     { id: 'business', name: 'Business', icon: BriefcaseIcon },
     { id: 'vacation', name: 'Vacation', icon: UmbrellaIcon },
@@ -227,6 +225,9 @@ export default function Home() {
                 <div className="flex flex-col sm:flex-row gap-4">
                   <button className="btn bg-white text-primary hover:bg-surface-100 px-8 py-3 text-lg">
                     Rent Now
+                  </button>
+                  <button onClick={handleSignUp} className="btn bg-primary text-white hover:bg-primary-dark px-8 py-3 text-lg">
+                    Sign Up
                   </button>
                   <button className="btn border-2 border-white text-white hover:bg-white/10 px-8 py-3 text-lg">
                     List Your Clothes
