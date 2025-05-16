@@ -1,50 +1,64 @@
-import { useState, useEffect, createContext, useContext } from 'react';
-import { Routes, Route, useNavigate } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { useState, useEffect, createContext, useContext, useMemo } from 'react';
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { setUser, clearUser } from './store/userSlice';
 import Home from './pages/Home';
 import NotFound from './pages/NotFound';
 import Browse from './pages/Browse';
 import CreateListing from './pages/CreateListing';
 import SignUp from './pages/SignUp';
 import Login from './pages/Login';
+import Callback from './pages/Callback';
+import ErrorPage from './pages/ErrorPage';
 import getIcon from './utils/iconUtils';
 import ShoppingBag from './pages/ShoppingBag';
 import ItemDetail from './pages/ItemDetail';
-
 import Checkout from './pages/Checkout';
+import { getUserByEmail } from './services/userService';
+
 const MoonIcon = getIcon('Moon');
 const SunIcon = getIcon('Sun');
 const UserIcon = getIcon('User');
 const ChevronDownIcon = getIcon('ChevronDown');
 
-// Create context for user roles
-export const UserContext = createContext({  
+// Create authentication context
+export const AuthContext = createContext({
+  isInitialized: false,
+  isAuthenticated: false,
+  user: null,
+  logout: () => {}
+});
+
+// Create context for user roles (extended with authentication info)
+export const UserContext = createContext({
   roles: [],
   activeRole: '',
   setActiveRole: () => {},
-  isLoggedIn: false
+  isLoggedIn: false,
+  user: null
 });
 
 // Create context for shopping bag
 export const ShoppingBagContext = createContext({
   bagItems: [],
-  addToBag: () => {},
+  addToBag: () => {},  
   removeBagItem: () => {},
   clearBag: () => {},
-  getBagCount: () => 0,
-  isLoggedIn: false
+  getBagCount: () => 0
 });
 
 // Custom hook to use the user context
 export const useUser = () => useContext(UserContext);
+
+// Custom hook to use auth context
+export const useAuth = () => useContext(AuthContext);
 
 // Role Switcher Component
 function RoleSwitcher() {
   const { roles, activeRole, setActiveRole } = useUser();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   
-  // If user only has one role, don't show the switcher
+  // If user only has one role, don't show the switcher 
   if (roles.length <= 1) return null;
   
   return (
@@ -76,12 +90,21 @@ function RoleSwitcher() {
 }
 
 function App() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const dispatch = useDispatch();
+  const userState = useSelector((state) => state.user);
+  
+  // State for dark/light mode
   const [darkMode, setDarkMode] = useState(() => {
     const savedMode = localStorage.getItem('darkMode');
     return savedMode === 'true' || (
       !savedMode && window.matchMedia('(prefers-color-scheme: dark)').matches
     );
   });
+  
+  // Authentication initialization state
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // Shopping bag state management
   const [bagItems, setBagItems] = useState(() => {
@@ -97,22 +120,117 @@ function App() {
     localStorage.setItem('shoppingBag', JSON.stringify(bagItems));
   }, [bagItems]);
 
-  
-  // User role management
+  // User role management (enhanced with authentication)
   const [roles, setRoles] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem('userRoles')) || [];
-    } catch (error) {
-      return [];
+    return userState?.user?.roles || [];
+  });
+  
+  const [activeRole, setActiveRole] = useState(userState?.user?.active_role || roles[0] || '');
+  
+  // Update roles and activeRole when user changes
+  useEffect(() => {
+    if (userState?.user) {
+      setRoles(userState.user.roles || []);
+      setActiveRole(userState.user.active_role || userState.user.roles?.[0] || '');
+    } else {
+      setRoles([]);
+      setActiveRole('');
     }
-  });
-  
-  const [activeRole, setActiveRole] = useState(() => {
-    return roles[0] || '';
-  });
-  
-  // Check if user is logged in (has roles)
-  const isLoggedIn = roles.length > 0;
+  }, [userState?.user]);
+
+  // Initialize ApperUI for authentication
+  useEffect(() => {
+    const { ApperClient, ApperUI } = window.ApperSDK;
+    
+    // Initialize ApperClient
+    const apperClient = new ApperClient({
+      apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+      apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+    });
+    
+    // Setup authentication
+    ApperUI.setup(apperClient, {
+      target: '#authentication',
+      clientId: import.meta.env.VITE_APPER_PROJECT_ID,
+      view: 'both',
+      onSuccess: async function(user) {
+        // CRITICAL: Exact currentPath logic for proper redirection flow
+        let currentPath = window.location.pathname + window.location.search;
+        let redirectPath = new URLSearchParams(window.location.search).get('redirect');
+        const isAuthPage = currentPath.includes('/login') || currentPath.includes('/signup') || currentPath.includes(
+          '/callback') || currentPath.includes('/error');
+
+        if (user) {
+          // User is authenticated
+          try {
+            // Get user data from database to retrieve roles
+            const dbUser = await getUserByEmail(user.emailAddress);
+            
+            // Add roles from database to user object
+            const enrichedUser = {
+              ...user,
+              roles: dbUser?.roles || ['renter'],
+              active_role: dbUser?.active_role || 'renter'
+            };
+            
+            // Store user in Redux
+            dispatch(setUser(JSON.parse(JSON.stringify(enrichedUser))));
+            
+            // Navigate based on redirection rules
+            if (redirectPath) {
+              navigate(redirectPath);
+            } else if (!isAuthPage) {
+              if (!currentPath.includes('/login') && !currentPath.includes('/signup')) {
+                navigate(currentPath);
+              } else {
+                navigate('/');
+              }
+            } else {
+              navigate('/');
+            }
+          } catch (error) {
+            console.error("Error fetching user data:", error);
+            dispatch(setUser(JSON.parse(JSON.stringify(user))));
+            navigate('/');
+          }
+        } else {
+          // User is not authenticated
+          if (!isAuthPage) {
+            navigate(
+              currentPath.includes('/signup')
+              ? `/signup?redirect=${currentPath}`
+              : currentPath.includes('/login')
+              ? `/login?redirect=${currentPath}`
+              : '/login');
+          } else if (redirectPath) {
+            if (
+              ![
+                'error',
+                'signup',
+                'login',
+                'callback'
+              ].some((path) => currentPath.includes(path)))
+              navigate(`/login?redirect=${redirectPath}`);
+            else {
+              navigate(currentPath);
+            }
+          } else if (isAuthPage) {
+            navigate(currentPath);
+          } else {
+            navigate('/login');
+          }
+          dispatch(clearUser());
+        }
+        
+        setIsInitialized(true);
+      },
+      onError: function(error) {
+        console.error("Authentication failed:", error);
+        setIsInitialized(true);
+        dispatch(clearUser());
+      }
+    });
+  }, [dispatch, navigate]);
 
   // Shopping bag functions
   const addToBag = (item) => {
@@ -153,82 +271,92 @@ function App() {
     localStorage.setItem('darkMode', darkMode);
   }, [darkMode]);
 
-  // Update active role when roles change
-  useEffect(() => {
-    if (roles.length > 0 && !roles.includes(activeRole)) {
-      setActiveRole(roles[0]);
-    }
-  }, [roles, activeRole]);
-
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
   };
 
-  return (    
-    <ShoppingBagContext.Provider value={{
-      bagItems,
-      addToBag,
-      removeBagItem,
-      clearBag,
-      getBagCount
-    }}>
-      <UserContext.Provider value={{ 
-        roles, 
-        activeRole, 
-        setActiveRole,
-        isLoggedIn
-      }}>
-        <div className="min-h-screen bg-surface-50 dark:bg-surface-900 transition-colors duration-200">
-        {/* Role Switcher - visible on all pages if logged in */}
-        {isLoggedIn && (
-          <div className="fixed top-6 right-20 z-50">
-            <RoleSwitcher />
-          </div>
-        )}
-        
-        <button
-          aria-label="Toggle dark mode"
-          className="fixed bottom-6 right-6 z-50 p-2 rounded-full bg-surface-200 dark:bg-surface-700 shadow-soft hover:bg-surface-300 dark:hover:bg-surface-600 transition-all"
-          onClick={toggleDarkMode}
-        >
-          {darkMode ? (
-            <SunIcon className="w-6 h-6 text-yellow-400" />
-          ) : (
-            <MoonIcon className="w-6 h-6 text-surface-600" />
-          )}
-        </button>
+  // Authentication methods for context
+  const authMethods = useMemo(() => ({
+    isInitialized,
+    isAuthenticated: !!userState?.user,
+    user: userState?.user,
+    logout: async () => {
+      try {
+        const { ApperUI } = window.ApperSDK;
+        await ApperUI.logout();
+        dispatch(clearUser());
+        navigate('/login');
+      } catch (error) {
+        console.error("Logout failed:", error);
+      }
+    }
+  }), [isInitialized, userState?.user, dispatch, navigate]);
 
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/browse" element={<Browse />} />
-          <Route path="/item/:id" element={<ItemDetail />} />
-          <Route path="/bag" element={<ShoppingBag />} />
-          <Route path="/checkout" element={<Checkout />} />
-          <Route path="/create-listing" element={<CreateListing />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-
-        <ToastContainer
-          position="top-right"
-          autoClose={4000}
-          hideProgressBar={false}
-          newestOnTop
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme={darkMode ? "dark" : "light"}
-          toastStyle={{
-            borderRadius: '0.5rem',
-            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)'
-          }}
-        />
+  // If not initialized yet, show a loading screen
+  if (!isInitialized) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-surface-50 dark:bg-surface-900">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-surface-600 dark:text-surface-300">Initializing application...</p>
         </div>
-      </UserContext.Provider>
-    </ShoppingBagContext.Provider>
+      </div>
+    );
+  }
+
+  return (    
+    <AuthContext.Provider value={authMethods}>
+      <ShoppingBagContext.Provider value={{
+        bagItems,
+        addToBag,
+        removeBagItem,
+        clearBag,
+        getBagCount
+      }}>
+        <UserContext.Provider value={{ 
+          roles, 
+          activeRole, 
+          setActiveRole,
+          isLoggedIn: !!userState?.user,
+          user: userState?.user
+        }}>
+          <div className="min-h-screen bg-surface-50 dark:bg-surface-900 transition-colors duration-200">
+            {/* Role Switcher - visible on all pages if logged in */}
+            {userState?.user && (
+              <div className="fixed top-6 right-20 z-50">
+                <RoleSwitcher />
+              </div>
+            )}
+            
+            <button
+              aria-label="Toggle dark mode"
+              className="fixed bottom-6 right-6 z-50 p-2 rounded-full bg-surface-200 dark:bg-surface-700 shadow-soft hover:bg-surface-300 dark:hover:bg-surface-600 transition-all"
+              onClick={toggleDarkMode}
+            >
+              {darkMode ? (
+                <SunIcon className="w-6 h-6 text-yellow-400" />
+              ) : (
+                <MoonIcon className="w-6 h-6 text-surface-600" />
+              )}
+            </button>
+            
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<SignUp />} />
+              <Route path="/callback" element={<Callback />} />
+              <Route path="/error" element={<ErrorPage />} />
+              <Route path="/browse" element={<Browse />} />
+              <Route path="/item/:id" element={<ItemDetail />} />
+              <Route path="/bag" element={<ShoppingBag />} />
+              <Route path="/checkout" element={<Checkout />} />
+              <Route path="/create-listing" element={<CreateListing />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </div>
+        </UserContext.Provider>
+      </ShoppingBagContext.Provider>
+    </AuthContext.Provider>
   );
 }
 

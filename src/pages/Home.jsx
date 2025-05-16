@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 import MainFeature from '../components/MainFeature';
-import { useUser } from '../App';
+import { useUser, useAuth } from '../App';
+import { getFeaturedClothingItems } from '../services/clothingItemService';
 import getIcon from '../utils/iconUtils';
 
 const SearchIcon = getIcon('Search');
@@ -26,12 +27,29 @@ const WatchIcon = getIcon('Watch');
 const CalendarIcon = getIcon('Calendar'); 
 const PartyPopperIcon = getIcon('PartyPopper');
 
+// Mapping helper for database items
+const mapDatabaseItemToUI = (item) => ({
+  id: item.Id,
+  title: item.title,
+  designer: item.designer,
+  retailPrice: item.retail_price,
+  rentalPrice: item.rental_price,
+  image: item.images && JSON.parse(item.images)[0] || "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?auto=format&fit=crop&q=80&w=500&h=600",
+  category: item.category
+});
+
 export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
+  const [featuredItems, setFeaturedItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   const { roles, activeRole, isLoggedIn } = useUser();
+  const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
+
   
   const handleSignUp = () => {
     navigate('/login?tab=register');
@@ -42,7 +60,7 @@ export default function Home() {
   };
   
   const handleListClothes = () => {
-    if (!isLoggedIn) {
+    if (!isAuthenticated) {
       toast.info("Please log in to list your clothes");
       navigate('/login');
     } else if (roles.includes('lender')) {
@@ -52,6 +70,25 @@ export default function Home() {
       navigate('/signup');
     }
   };
+  
+  // Fetch featured items from the database
+  useEffect(() => {
+    const loadFeaturedItems = async () => {
+      try {
+        setLoading(true);
+        const response = await getFeaturedClothingItems(6);
+        const mappedItems = response.map(mapDatabaseItemToUI);
+        setFeaturedItems(mappedItems.length > 0 ? mappedItems : items);
+        setError(null);
+      } catch (err) {
+        setError("Failed to load featured items");
+        setFeaturedItems(items); // Fallback to static data
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadFeaturedItems();
+  }, []);
 
   // Occasions array
   const occasions = [
@@ -69,62 +106,7 @@ export default function Home() {
   };
 
   // Featured items array
-  const featuredItems = [
-    {
-      id: 1,
-      title: "Floral Print Midi Dress",
-      designer: "Valentino",
-      retailPrice: 2500,
-      rentalPrice: 125,
-      image: "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?auto=format&fit=crop&q=80&w=500&h=600",
-      category: "Dresses"
-    },
-    {
-      id: 2,
-      title: "Classic Structured Blazer",
-      designer: "Saint Laurent",
-      retailPrice: 3200,
-      rentalPrice: 160,
-      image: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&q=80&w=500&h=600",
-      category: "Business"
-    },
-    {
-      id: 3,
-      title: "Crystal Embellished Clutch",
-      designer: "Jimmy Choo",
-      retailPrice: 1800,
-      rentalPrice: 95,
-      image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&q=80&w=500&h=600",
-      category: "Accessories"
-    },
-    {
-      id: 4,
-      title: "Tailored Tuxedo Set",
-      designer: "Tom Ford",
-      retailPrice: 4500,
-      rentalPrice: 225,
-      image: "https://images.unsplash.com/photo-1598808503746-f34cfb6350ff?auto=format&fit=crop&q=80&w=500&h=600",
-      category: "Business"
-    },
-    {
-      id: 5,
-      title: "Statement Gold Necklace",
-      designer: "Bvlgari",
-      retailPrice: 8000,
-      rentalPrice: 320,
-      image: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&q=80&w=500&h=600",
-      category: "Accessories"
-    },
-    {
-      id: 6,
-      title: "Sequin Maxi Gown",
-      designer: "Elie Saab",
-      retailPrice: 6000,
-      rentalPrice: 280,
-      image: "https://images.unsplash.com/photo-1566174053879-31528523f8c6?auto=format&fit=crop&q=80&w=500&h=600",
-      category: "Dresses"
-    },
-  ];
+const items = [];
   
   const categories = [
     { id: 'dresses', name: 'Dresses', icon: DressIcon },
@@ -180,7 +162,7 @@ export default function Home() {
               <form onSubmit={handleSearch} className="relative">
                 <input
                   type="text"
-                  placeholder="Search styles..."
+              </button> 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10 pr-4 py-2 w-48 rounded-full bg-surface-100 dark:bg-surface-700 focus:outline-none focus:ring-2 focus:ring-primary"
@@ -199,7 +181,7 @@ export default function Home() {
               </button>
               <button 
                 onClick={handleListClothes} 
-                className={`btn-primary ${isLoggedIn && !roles.includes('lender') ? 'opacity-70' : ''}`}
+            </div> 
               >List Your Items</button>
             </div>
             
@@ -283,7 +265,7 @@ export default function Home() {
                   >
                     List Your Clothes
                   </button>
-                </div>
+        </header> 
               </div>
             </div>
           </div>
@@ -368,6 +350,13 @@ export default function Home() {
             
             {/* Featured Items Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+              {loading && (
+                <div className="col-span-full flex justify-center p-8">
+                  <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              )}
+              
+              {!loading && error && <div className="col-span-full text-center text-red-500 p-4">{error}</div>}
               {filteredItems.map((item) => (
                 <motion.div
                   key={item.id}

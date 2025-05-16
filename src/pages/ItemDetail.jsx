@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { ShoppingBagContext } from '../App';
+import { getClothingItemById } from '../services/clothingItemService';
 import getIcon from '../utils/iconUtils';
 
 const HeartIcon = getIcon('Heart');
@@ -95,26 +96,77 @@ export default function ItemDetail() {
   const relatedItems = items.filter(i => i.id.toString() !== id.toString()).slice(0, 3);
 
   useEffect(() => {
-    // Simulate API call to fetch item details
+    // Fetch item details from database
     setLoading(true);
-    const foundItem = items.find(item => item.id.toString() === id.toString());
-    
-    // Check if item is in wishlist
-    const wishlistItems = JSON.parse(localStorage.getItem('wishlistItems') || '[]');
-    const isItemInWishlist = wishlistItems.includes(parseInt(id));
-    
-    setTimeout(() => {
-      if (foundItem) {
-        setItem(foundItem);
-        setSelectedSize(foundItem.sizes[0]);
-        setIsInWishlist(isItemInWishlist);
-      } else {
-        setIsInWishlist(false);
-        toast.error("Item not found");
-        navigate('/browse');
+
+    const fetchItemDetails = async () => {
+      try {
+        const response = await getClothingItemById(id);
+        
+        if (response && response.data) {
+          // Format item data from database
+          const itemData = {
+            id: response.data.Id,
+            title: response.data.title,
+            designer: response.data.designer,
+            retailPrice: response.data.retail_price,
+            rentalPrice: response.data.rental_price,
+            description: response.data.description,
+            images: response.data.images ? JSON.parse(response.data.images) : [],
+            category: response.data.category,
+            color: response.data.color,
+            colors: [response.data.color], // Assuming only one color is stored
+            sizes: response.data.size ? [response.data.size] : ["S", "M", "L"],
+            availableDates: [], // This would need to be parsed from available_from and available_to
+            rating: response.data.rating || 4.5,
+            reviews: 24,
+            occasionTags: response.data.occasion_tags ? response.data.occasion_tags.split(',') : [],
+            specifications: [
+              { name: "Material", value: "100% Silk" },
+              { name: "Care", value: "Dry Clean Only" },
+              { name: "Length", value: "Midi" }
+            ]
+          };
+          
+          // Check if item is in wishlist
+          const wishlistItems = JSON.parse(localStorage.getItem('wishlistItems') || '[]');
+          const isItemInWishlist = wishlistItems.includes(parseInt(id));
+          
+          setItem(itemData);
+          setSelectedSize(itemData.sizes[0]);
+          setIsInWishlist(isItemInWishlist);
+        } else {
+          // If database item not found, try to find it in static items
+          const foundItem = items.find(item => item.id.toString() === id.toString());
+          
+          if (foundItem) {
+            setItem(foundItem);
+            setSelectedSize(foundItem.sizes[0]);
+            setIsInWishlist(false);
+          } else {
+            toast.error("Item not found");
+            navigate('/browse');
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching item details:", error);
+        toast.error("Failed to load item details");
+        
+        // Try static items as fallback
+        const foundItem = items.find(item => item.id.toString() === id.toString());
+        if (foundItem) {
+          setItem(foundItem);
+          setSelectedSize(foundItem.sizes[0]);
+          setIsInWishlist(false);
+        } else {
+          navigate('/browse');
+        }
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
-    }, 500); // Simulate loading delay
+    };
+
+    fetchItemDetails();
   }, [id, navigate]);
 
   const toggleWishlist = () => {

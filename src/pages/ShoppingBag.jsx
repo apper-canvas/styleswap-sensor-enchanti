@@ -1,7 +1,7 @@
 import { useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { ShoppingBagContext } from '../App';
+import { ShoppingBagContext, useAuth } from '../App';
 import getIcon from '../utils/iconUtils';
 
 const ArrowLeftIcon = getIcon('ArrowLeft');
@@ -14,6 +14,9 @@ const MinusIcon = getIcon('Minus');
 
 export default function ShoppingBag() {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+  const [isRedirecting, setIsRedirecting] = useState(false);
+  
   const { bagItems, addToBag, removeBagItem, clearBag } = useContext(ShoppingBagContext);
   const [promoCode, setPromoCode] = useState('');
   const [appliedPromo, setAppliedPromo] = useState(null);
@@ -87,13 +90,29 @@ export default function ShoppingBag() {
 
   const handleProceedToCheckout = () => {
     if (bagItemsWithQuantity.length === 0) {
-      toast.error("Your bag is empty");
+      toast.error("Your bag is empty"); 
       return;
     }
     
-    toast.info("Proceeding to checkout...");
-    // Navigate to checkout page
-    navigate('/checkout');
+    if (!isAuthenticated) {
+      setIsRedirecting(true);
+      toast.info("Please log in to continue checkout");
+      
+      // Save the current items to localStorage for later retrieval
+      try {
+        localStorage.setItem('pendingCheckout', 'true');
+        setTimeout(() => {
+          navigate('/login?redirect=/checkout');
+        }, 1500);
+      } catch (error) {
+        console.error("Error saving checkout state:", error);
+        navigate('/login?redirect=/checkout');
+      }
+    } else {
+      toast.info("Proceeding to checkout...");
+      // Navigate to checkout page
+      navigate('/checkout');
+    }
   };
 
   // Calculate order summary
@@ -302,7 +321,8 @@ export default function ShoppingBag() {
                 {/* Action Buttons */}
                 <div className="mt-6 space-y-3">
                   <button
-                    onClick={handleProceedToCheckout}
+                    onClick={handleProceedToCheckout} 
+                    disabled={isRedirecting}
                     className="btn-primary w-full py-3"
                   >
                     Proceed to Checkout

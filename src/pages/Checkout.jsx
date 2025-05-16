@@ -1,8 +1,10 @@
-import { useContext, useState } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { ShoppingBagContext } from '../App';
+import { ShoppingBagContext, useAuth } from '../App';
 import getIcon from '../utils/iconUtils';
+import { createOrder } from '../services/orderService';
+import { createOrderItems } from '../services/orderItemService';
 
 const ArrowLeftIcon = getIcon('ArrowLeft');
 const ShieldCheckIcon = getIcon('ShieldCheck');
@@ -14,8 +16,12 @@ const BadgeCheckIcon = getIcon('BadgeCheck');
 
 export default function Checkout() {
   const navigate = useNavigate();
-  const { bagItems } = useContext(ShoppingBagContext);
+  const { bagItems, clearBag } = useContext(ShoppingBagContext);
+  const { isAuthenticated, user } = useAuth();
   const [step, setStep] = useState(1); // 1: Shipping, 2: Payment
+  
+  // For order processing
+  const [isProcessing, setIsProcessing] = useState(false);
   
   // Form State
   const [shippingAddress, setShippingAddress] = useState({
@@ -44,6 +50,18 @@ export default function Checkout() {
   // Validation State
   const [shippingErrors, setShippingErrors] = useState({});
   const [paymentErrors, setPaymentErrors] = useState({});
+
+  // Check if user is authenticated
+  useEffect(() => {
+    if (!isAuthenticated) {
+      toast.error("Please log in to complete your checkout");
+      navigate("/login?redirect=/checkout");
+    }
+
+    if (user && user.emailAddress) {
+      setShippingAddress(prev => ({ ...prev, email: user.emailAddress }));
+    }
+  }, [isAuthenticated, navigate, user]);
   
   // Handle shipping form change
   const handleShippingChange = (e) => {
@@ -167,13 +185,44 @@ export default function Checkout() {
   };
   
   // Handle place order
-  const handlePlaceOrder = () => {
-    if (validatePaymentInfo()) {
-      toast.success("Order placed successfully! Thank you for your purchase.");
-      // In a real application, you would send the order data to a server
-      // and handle payment processing
-      navigate('/');
-    } else {
+  const handlePlaceOrder = async () => {
+    if (!validatePaymentInfo()) {
+      toast.error("Please fill in all required payment information");
+      return;
+    }
+
+    if (bagItems.length === 0) {
+      toast.error("Your shopping bag is empty");
+      return;
+    }
+    
+    setIsProcessing(true);
+    
+    try {
+      // 1. Create the order in the database
+      const orderData = {
+        firstName: shippingAddress.firstName,
+        lastName: shippingAddress.lastName,
+        streetAddress: shippingAddress.streetAddress,
+        aptSuite: shippingAddress.aptSuite,
+        city: shippingAddress.city,
+        state: shippingAddress.state,
+        zipCode: shippingAddress.zipCode,
+        country: shippingAddress.country,
+        phone: shippingAddress.phone,
+        email: shippingAddress.email,
+        subtotal: subtotal,
+        shippingFee: shippingFee,
+        tax: taxes,
+        total: total,
+        promoCode: appliedPromo?.code || ''
+      };
+      
+      const orderResponse = await createOrder(orderData);
+      
+      if (!orderResponse.success) {
+        throw new Error("Failed to create order");
+      }
       toast.error("Please fill in all required payment information");
     }
   };
@@ -603,7 +652,7 @@ export default function Checkout() {
                 <button
                   onClick={handlePlaceOrder}
                   className="btn-primary"
-                >
+                  disabled={isProcessing}>
                   Place Order
                 </button>
               )}

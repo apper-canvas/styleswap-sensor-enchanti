@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 import getIcon from '../utils/iconUtils';
+import { createClothingItem } from '../services/clothingItemService';
 import { useUser } from '../App';
 
 const ArrowLeftIcon = getIcon('ArrowLeft');
@@ -15,9 +16,10 @@ const InfoIcon = getIcon('Info');
 const XIcon = getIcon('X');
 
 export default function CreateListing() {
-  const navigate = useNavigate();
-  const { roles, activeRole } = useUser();
-  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate(); 
+  const { roles, activeRole, isLoggedIn } = useUser();
+  const [loading, setLoading] = useState(true); 
+  const [uploadingImages, setUploadingImages] = useState(false);
   
   // Check if user is authorized to create listings (must be a lender)
   useEffect(() => {
@@ -127,12 +129,32 @@ export default function CreateListing() {
     setIsSubmitting(true);
     
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // First, we would upload images to a storage service and get URLs
+      // For demonstration purposes, we'll assume the images are already URLs
+      setUploadingImages(true);
+      await new Promise(resolve => setTimeout(resolve, 500)); // Simulate image upload
+      setUploadingImages(false);
+      
+      // Create the listing in the database
+      const response = await createClothingItem({
+        title: formData.title,
+        designer: formData.designer,
+        category: formData.category,
+        description: formData.description,
+        retailPrice: formData.retailPrice,
+        rentalPrice: formData.rentalPrice,
+        size: formData.size,
+        condition: formData.condition,
+        color: formData.color,
+        availableFrom: formData.availableFrom,
+        availableTo: formData.availableTo,
+        images: JSON.stringify(formData.images),
+        shipping: formData.shipping,
+        tags: formData.tags
+      });
       
       toast.success('Your item has been listed successfully!');
-      navigate('/');
-    } catch (error) {
+      navigate('/browse');    } catch (error) {
       toast.error('Error listing your item. Please try again.');
     } finally {
       setIsSubmitting(false);
@@ -465,7 +487,7 @@ export default function CreateListing() {
                 className="btn-primary"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? 'Listing...' : 'List My Item'}
+                {isSubmitting ? (uploadingImages ? 'Uploading Images...' : 'Creating Listing...') : 'List My Item'}
               </button>
             </div>
           </form>
