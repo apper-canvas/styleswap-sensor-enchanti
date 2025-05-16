@@ -33,8 +33,10 @@ function Login() {
         <div id="authentication" className="min-h-[400px]" />
         <div className="text-center mt-4">
           <p className="text-sm text-surface-600 dark:text-surface-400">
-            Don't have an account?{' '}
-            <Link to="/signup" className="font-medium text-primary hover:text-primary-dark">
+            Don't have an account?{" "}
+            <Link 
+              to={`/signup${location.search}`} 
+              className="font-medium text-primary hover:text-primary-dark">
               Sign up
             </Link>
           </p>
