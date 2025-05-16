@@ -21,7 +21,7 @@ function SignUp() {
     name: '',
     email: '',
     confirmPassword: '',
-    roles: ['renter']  // Default role is renter
+    roles: ['renter'],  // Default role is renter
     agreeToTerms: false
   });
   const [errors, setErrors] = useState({});
@@ -49,13 +49,13 @@ function SignUp() {
   const handleRoleChange = (role) => {
     // If clicking on 'both', select both roles
     if (role === 'both') {
-      setRegisterForm({ ...registerForm, roles: ['renter', 'lender'] });
+      setFormData({ ...formData, roles: ['renter', 'lender'] });
     } else {
       // Toggle the selected role
-      const newRoles = registerForm.roles.includes(role) 
-        ? registerForm.roles.filter(r => r !== role) 
-        : [...registerForm.roles, role];
-      setRegisterForm({ ...registerForm, roles: newRoles.length ? newRoles : ['renter'] }); // Ensure at least one role
+      const newRoles = formData.roles.includes(role) 
+        ? formData.roles.filter(r => r !== role) 
+        : [...formData.roles, role];
+      setFormData({ ...formData, roles: newRoles.length ? newRoles : ['renter'] }); // Ensure at least one role
     }
   };
 
@@ -82,7 +82,7 @@ function SignUp() {
     }
     
     setErrors(errors);
-    if (registerForm.roles.length === 0) {
+    if (formData.roles.length === 0) {
       errors.roles = 'Please select at least one role';
     }
     return Object.keys(errors).length === 0;
@@ -94,7 +94,7 @@ function SignUp() {
       toast.success('Account created successfully! Please check your email to verify your account.');
       navigate('/login');
     }
-        localStorage.setItem('userRoles', JSON.stringify(registerForm.roles));
+    localStorage.setItem('userRoles', JSON.stringify(formData.roles));
   };
 
   const handleSocialLogin = (provider) => {
@@ -224,21 +224,21 @@ function SignUp() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div 
                   className={`flex items-start p-4 border rounded-lg cursor-pointer transition-all ${
-                    registerForm.roles.includes('renter') 
-                      ? 'border-primary bg-primary/5 dark:bg-primary/10' 
+                    formData.roles.includes('renter') 
+                      ? 'border-primary bg-primary/5 dark:bg-primary/10'  
                       : 'border-surface-300 dark:border-surface-600'
                   }`}
                   onClick={() => handleRoleChange('renter')}
                 >
                   <input
                     type="checkbox"
-                    checked={registerForm.roles.includes('renter')}
+                    checked={formData.roles.includes('renter')}
                     onChange={() => handleRoleChange('renter')}
                     className="h-5 w-5 text-primary rounded"
                   />
                   <div className="ml-3">
                     <h3 className="font-medium">Renter</h3>
-                    <p className="text-sm text-surface-500 dark:text-surface-400">Browse and rent designer items from others</p>
+                    formData.roles.includes('lender') 
                   </div>
                 </div>
                 
@@ -246,7 +246,7 @@ function SignUp() {
                   className={`flex items-start p-4 border rounded-lg cursor-pointer transition-all ${
                     registerForm.roles.includes('lender') 
                       ? 'border-primary bg-primary/5 dark:bg-primary/10' 
-                      : 'border-surface-300 dark:border-surface-600'
+                    checked={formData.roles.includes('lender')}
                   }`}
                   onClick={() => handleRoleChange('lender')}
                 >
