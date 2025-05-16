@@ -51,6 +51,7 @@ export default function Home() {
       category: "Business"
     },
     {
+      id: 3,
       title: "Crystal Embellished Clutch",
       designer: "Jimmy Choo",
       retailPrice: 1800,
@@ -413,7 +414,7 @@ export default function Home() {
                     <h4 className="font-semibold">Sophia Chen</h4>
                     <div className="flex">
                       {[...Array(5)].map((_, i) => (
-                        <StarIcon key={i} className="w-4 h-4 text-accent" />
+                        <StarIcon key={`sophia-star-${i}`} className="w-4 h-4 text-accent" />
                       ))}
                     </div>
                   </div>
@@ -434,7 +435,7 @@ export default function Home() {
                     <h4 className="font-semibold">Marcus Johnson</h4>
                     <div className="flex">
                       {[...Array(5)].map((_, i) => (
-                        <StarIcon key={i} className={`w-4 h-4 ${i < 4 ? 'text-accent' : 'text-surface-300'}`} />
+                        <StarIcon key={`marcus-star-${i}`} className={`w-4 h-4 ${i < 4 ? 'text-accent' : 'text-surface-300'}`} />
                       ))}
                     </div>
                   </div>
@@ -455,7 +456,7 @@ export default function Home() {
                     <h4 className="font-semibold">Olivia Rodriguez</h4>
                     <div className="flex">
                       {[...Array(5)].map((_, i) => (
-                        <StarIcon key={i} className="w-4 h-4 text-accent" />
+                        <StarIcon key={`olivia-star-${i}`} className="w-4 h-4 text-accent" />
                       ))}
                     </div>
                   </div>
