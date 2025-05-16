@@ -133,7 +133,13 @@ function Login() {
   const handleRegisterSubmit = (e) => {
     e.preventDefault();
     if (validateRegisterForm()) {
-      localStorage.setItem('userRoles', JSON.stringify(['renter', 'lender'])); // Default to both roles for tabbed registration
+      // Instead of registering directly from the basic form,
+      // redirect to the dedicated signup page for more detailed role selection
+      toast.info('Please complete your registration with role selection');
+      navigate('/signup');
+      
+      // No longer setting default roles here - proper role selection happens in SignUp.jsx
+      // localStorage.setItem('userRoles', JSON.stringify(['renter', 'lender']));
       toast.success('Registration successful! Please check your email to verify your account.');
       navigate('/');
     }
@@ -254,7 +260,7 @@ function Login() {
                 <p className="text-sm text-surface-600 dark:text-surface-400">
                   Don't have an account?{" "}
                   <button type="button" onClick={() => navigate('/signup')} className="font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400">
-                    Create an account
+                    Register with role selection
                   </button>
                 </p>
               </div>

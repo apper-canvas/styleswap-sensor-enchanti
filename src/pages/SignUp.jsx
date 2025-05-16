@@ -329,6 +329,80 @@ function SignUp() {
               <div className="ml-4">
                 <h3 className="text-lg font-medium">Secure Transactions</h3>
                 <p className="mt-1">All payments and personal data are encrypted and secure.</p>
+
+            <div className="space-y-1">
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-surface-700 dark:text-surface-300">
+                Confirm Password
+              </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <LockIcon className="h-5 w-5 text-surface-400" />
+                </div>
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type={showPassword ? "text" : "password"}
+                  value={formData.confirmPassword}
+                  onChange={handleInputChange}
+                  className={`block w-full pl-10 pr-3 py-2 border ${errors.confirmPassword ? 'border-red-500' : 'border-surface-300 dark:border-surface-600'} rounded-lg shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-surface-700 dark:text-white`}
+                  placeholder="••••••••"
+                />
+              </div>
+              {errors.confirmPassword && <p className="text-sm text-red-500">{errors.confirmPassword}</p>}
+            </div>
+
+            <div className="flex items-center">
+              <input
+                id="terms"
+                name="terms"
+                type="checkbox"
+                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-surface-300 rounded"
+              />
+              <label htmlFor="terms" className="ml-2 block text-sm text-surface-700 dark:text-surface-300">
+                I agree to the <a href="#" className="text-primary-600 hover:text-primary-500">Terms of Service</a> and <a href="#" className="text-primary-600 hover:text-primary-500">Privacy Policy</a>
+              </label>
+            </div>
+
+            <div className="pt-2">
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? 'Creating Account...' : 'Create Account'}
+              </button>
+            </div>
+            
+            <div className="mt-4 text-center">
+              <p className="text-sm text-surface-600 dark:text-surface-400">
+                Already have an account?{" "}
+                <button 
+                  type="button" 
+                  onClick={handleBackToLogin}
+                  className="font-medium text-primary-600 hover:text-primary-500 dark:text-primary-400"
+                >
+                  Sign in
+                </button>
+              </p>
+            </div>
+          </form>
+        </div>
+        
+        <div className="px-6 py-4 bg-surface-50 dark:bg-surface-700 text-center">
+          <p className="text-sm text-surface-600 dark:text-surface-300">
+            By signing up, you'll be able to:
+          </p>
+          <div className="mt-2 grid grid-cols-2 gap-2 text-xs text-surface-500 dark:text-surface-400">
+            <div>• Rent designer clothes</div>
+            <div>• List your own clothes</div>
+            <div>• Save favorite items</div>
+            <div>• Track your rentals</div>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
               </div>
             </li>
             <li className="flex items-start">
