@@ -316,6 +316,7 @@ export default function Browse() {
   const navigateToItemDetail = (itemId) => {
     toast.info('Viewing item details');
     navigate(`/item/${itemId}`);
+    return false; // Prevent event bubbling
   };
 
   const addToBag = (item) => {
@@ -637,6 +638,7 @@ export default function Browse() {
                   className="card group overflow-hidden"
                   onClick={() => navigateToItemDetail(item.id)}
                   style={{ cursor: 'pointer' }}
+                  whileHover={{ y: -5 }}
                 >
                   <div className="relative h-80 overflow-hidden">
                     <img 
