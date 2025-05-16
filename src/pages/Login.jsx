@@ -231,7 +231,7 @@ function Login() {
                     Create an account
                   </a>
                 </p>
-              </button>
+              </div>
             </form>
           ) : (
             <form onSubmit={handleRegisterSubmit} className="space-y-6">
