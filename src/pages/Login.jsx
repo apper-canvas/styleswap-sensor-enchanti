@@ -117,6 +117,14 @@ function Login() {
   const handleLoginSubmit = (e) => {
     e.preventDefault();
     if (validateLoginForm()) {
+      // In a real app, this would come from your backend after authentication
+      // For demo purposes, we'll use previously stored roles or default to both roles
+      try {
+        const storedRoles = JSON.parse(localStorage.getItem('userRoles')) || ['renter', 'lender'];
+        localStorage.setItem('userRoles', JSON.stringify(storedRoles));
+      } catch (error) {
+        localStorage.setItem('userRoles', JSON.stringify(['renter', 'lender']));
+      }
       toast.success('Login successful!');
       navigate('/');
     }
@@ -125,6 +133,7 @@ function Login() {
   const handleRegisterSubmit = (e) => {
     e.preventDefault();
     if (validateRegisterForm()) {
+      localStorage.setItem('userRoles', JSON.stringify(['renter', 'lender'])); // Default to both roles for tabbed registration
       toast.success('Registration successful! Please check your email to verify your account.');
       navigate('/');
     }

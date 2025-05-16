@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 import getIcon from '../utils/iconUtils';
+import { useUser } from '../App';
 
 const ArrowLeftIcon = getIcon('ArrowLeft');
 const CameraIcon = getIcon('Camera');
@@ -11,9 +12,23 @@ const CalendarIcon = getIcon('Calendar');
 const TagIcon = getIcon('Tag');
 const TruckIcon = getIcon('Truck');
 const InfoIcon = getIcon('Info');
+const XIcon = getIcon('X');
 
 export default function CreateListing() {
   const navigate = useNavigate();
+  const { roles, activeRole } = useUser();
+  const [loading, setLoading] = useState(true);
+  
+  // Check if user is authorized to create listings (must be a lender)
+  useEffect(() => {
+    // Give a small delay to ensure context is loaded
+    const checkAuth = setTimeout(() => {
+      setLoading(false);
+    }, 500);
+    
+    return () => clearTimeout(checkAuth);
+  }, [roles]);
+  
   const [formData, setFormData] = useState({
     title: '',
     designer: '',
@@ -123,6 +138,38 @@ export default function CreateListing() {
       setIsSubmitting(false);
     }
   };
+  
+  // If user is not a lender, show access denied message
+  if (!loading && (!roles.includes('lender') || activeRole !== 'lender')) {
+    return (
+      <div className="min-h-screen bg-surface-50 dark:bg-surface-900">
+        <header className="sticky top-0 z-50 bg-white dark:bg-surface-800 shadow-sm">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              <div className="flex items-center">
+                <button 
+                  onClick={() => navigate(-1)}
+                  className="mr-4 p-2 rounded-full hover:bg-surface-100 dark:hover:bg-surface-700"
+                >
+                  <ArrowLeftIcon className="w-5 h-5 text-surface-600 dark:text-surface-300" />
+                </button>
+                <h1 className="text-xl font-bold">List Your Clothes</h1>
+              </div>
+            </div>
+          </div>
+        </header>
+        
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+          <h2 className="text-2xl font-bold mb-4 text-red-500">Access Restricted</h2>
+          <p className="text-lg mb-8">Only lenders can create listings. Please switch to your lender account or register as a lender to continue.</p>
+          <div className="flex justify-center gap-4">
+            <button onClick={() => navigate('/')} className="btn-outline">Return Home</button>
+            <button onClick={() => navigate('/signup')} className="btn-primary">Register as Lender</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div className="min-h-screen bg-surface-50 dark:bg-surface-900">

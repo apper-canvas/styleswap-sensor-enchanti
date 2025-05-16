@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 import MainFeature from '../components/MainFeature';
+import { useUser } from '../App';
 import getIcon from '../utils/iconUtils';
 
 const SearchIcon = getIcon('Search');
@@ -25,6 +26,7 @@ export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
+  const { roles, activeRole, isLoggedIn } = useUser();
   const navigate = useNavigate();
   
   const handleSignUp = () => {
@@ -36,7 +38,15 @@ export default function Home() {
   };
   
   const handleListClothes = () => {
-    navigate('/create-listing');
+    if (!isLoggedIn) {
+      toast.info("Please log in to list your clothes");
+      navigate('/login');
+    } else if (roles.includes('lender')) {
+      navigate('/create-listing');
+    } else {
+      toast.info("You need a lender account to list clothes");
+      navigate('/signup');
+    }
   };
 
   const featuredItems = [
@@ -167,7 +177,10 @@ export default function Home() {
               <button className="p-2 rounded-full hover:bg-surface-100 dark:hover:bg-surface-700">
                 <ShoppingBagIcon className="w-6 h-6 text-surface-600 dark:text-surface-300" />
               </button>
-              <button onClick={handleListClothes} className="btn-primary">List Your Items</button>
+              <button 
+                onClick={handleListClothes} 
+                className={`btn-primary ${isLoggedIn && !roles.includes('lender') ? 'opacity-70' : ''}`}
+              >List Your Items</button>
             </div>
             
             {/* Mobile Menu Button */}
@@ -216,7 +229,12 @@ export default function Home() {
                   <span>Bag</span>
                 </button>
               </div>
-              <button onClick={handleListClothes} className="w-full mt-3 btn-primary">List Your Items</button>
+              <button 
+                onClick={handleListClothes} 
+                className={`w-full mt-3 btn-primary ${isLoggedIn && !roles.includes('lender') ? 'opacity-70' : ''}`}
+              >
+                List Your Items
+              </button>
             </div>
           </div>
         )}
@@ -239,7 +257,10 @@ export default function Home() {
                   <button onClick={handleSignUp} className="btn bg-primary text-white hover:bg-primary-dark px-8 py-3 text-lg">
                     Sign Up
                   </button>
-                  <button onClick={handleListClothes} className="btn border-2 border-white text-white hover:bg-white/10 px-8 py-3 text-lg">
+                  <button 
+                    onClick={handleListClothes} 
+                    className={`btn border-2 border-white text-white hover:bg-white/10 px-8 py-3 text-lg ${isLoggedIn && !roles.includes('lender') ? 'opacity-70' : ''}`}
+                  >
                     List Your Clothes
                   </button>
                 </div>
