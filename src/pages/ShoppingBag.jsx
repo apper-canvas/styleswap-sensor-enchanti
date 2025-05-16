@@ -92,8 +92,8 @@ export default function ShoppingBag() {
     }
     
     toast.info("Proceeding to checkout...");
-    // In a real app, navigate to checkout page
-    // navigate('/checkout');
+    // Navigate to checkout page
+    navigate('/checkout');
   };
 
   // Calculate order summary

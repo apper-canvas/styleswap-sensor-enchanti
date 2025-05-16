@@ -12,6 +12,7 @@ import getIcon from './utils/iconUtils';
 import ShoppingBag from './pages/ShoppingBag';
 import ItemDetail from './pages/ItemDetail';
 
+import Checkout from './pages/Checkout';
 const MoonIcon = getIcon('Moon');
 const SunIcon = getIcon('Sun');
 const UserIcon = getIcon('User');
@@ -204,6 +205,7 @@ function App() {
           <Route path="/browse" element={<Browse />} />
           <Route path="/item/:id" element={<ItemDetail />} />
           <Route path="/bag" element={<ShoppingBag />} />
+          <Route path="/checkout" element={<Checkout />} />
           <Route path="/create-listing" element={<CreateListing />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
