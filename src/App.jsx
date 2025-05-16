@@ -20,6 +20,7 @@ const MoonIcon = getIcon('Moon');
 const SunIcon = getIcon('Sun');
 const UserIcon = getIcon('User');
 const ChevronDownIcon = getIcon('ChevronDown');
+const LogOutIcon = getIcon('LogOut');
 
 // Create authentication context
 export const AuthContext = createContext({
@@ -85,6 +86,47 @@ function RoleSwitcher() {
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+// User Navigation Component with Role Switcher and Logout
+function UserNavigation() {
+  const { roles, activeRole, setActiveRole } = useUser();
+  const { logout } = useAuth();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  
+  return (
+    <div className="fixed top-6 right-6 z-50 flex items-center space-x-4">
+      {/* Role Switcher */}
+      <RoleSwitcher />
+      
+      {/* Logout Button */}
+      <button 
+        onClick={logout}
+        className="flex items-center px-3 py-2 text-sm font-medium text-white bg-primary hover:bg-primary-dark rounded-lg transition-colors duration-200"
+        aria-label="Log out"
+      >
+        <LogOutIcon className="w-4 h-4 mr-2" />
+        Logout
+      </button>
+    </div>
+  );
+}
+
+// Mobile User Navigation with Dropdown
+function MobileUserNav() {
+  const { logout } = useAuth();
+  const [isOpen, setIsOpen] = useState(false);
+  
+  return (
+    <div className="md:hidden fixed bottom-20 right-6 z-50">
+      <button
+        onClick={logout}
+        className="flex items-center justify-center w-12 h-12 rounded-full bg-primary text-white shadow-lg"
+      >
+        <LogOutIcon className="w-5 h-5" />
+      </button>
     </div>
   );
 }
@@ -323,9 +365,10 @@ function App() {
           <div className="min-h-screen bg-surface-50 dark:bg-surface-900 transition-colors duration-200">
             {/* Role Switcher - visible on all pages if logged in */}
             {userState?.user && (
-              <div className="fixed top-6 right-20 z-50">
-                <RoleSwitcher />
-              </div>
+              <>
+                <UserNavigation />
+                <MobileUserNav />
+              </>
             )}
             
             <button
