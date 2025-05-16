@@ -64,7 +64,8 @@
   }
   
   .card-hover {
-    @apply hover:shadow-soft hover:-translate-y-1;
+    @apply hover:shadow-soft hover:-translate-y-1 transition-all duration-200;
+  }
 
   /* React Datepicker Custom Styles */
   .react-datepicker {
@@ -140,7 +141,6 @@
 
   .date-range-selector .date-value {
     @apply text-sm font-medium;
-  }
   }
 }
 
