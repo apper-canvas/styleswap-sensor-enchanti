@@ -243,7 +243,7 @@ export default function ItemDetail() {
           {/* Product Details */}
           <div className="space-y-6">
             <div>
-              <h1 className="text-2xl font-bold">{item.title}</h1>
+              <h1 className="text-3xl font-extrabold text-surface-900 dark:text-white mb-1">{item.title}</h1>
               <p className="text-lg text-surface-600 dark:text-surface-400">{item.designer}</p>
               
               <div className="flex items-center mt-2 mb-4">
