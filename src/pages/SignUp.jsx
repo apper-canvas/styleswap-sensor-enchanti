@@ -331,10 +331,32 @@ function SignUp() {
                 <p className="mt-1">All payments and personal data are encrypted and secure.</p>
 
     </div>
+            <li className="flex items-start">
+              <div className="flex-shrink-0 p-1">
+                <TruckIcon className="h-6 w-6" />
+              </div>
+              <div className="ml-4">
+                <h3 className="text-lg font-medium">Free Shipping</h3>
+                <p className="mt-1">Enjoy free shipping on all rentals and returns within the country.</p>
+              </div>
+            </li>
+            <li className="flex items-start">
+              <div className="flex-shrink-0 p-1">
+                <HeartIcon className="h-6 w-6" />
+              </div>
+              <div className="ml-4">
+                <h3 className="text-lg font-medium">Sustainable Fashion</h3>
+                <p className="mt-1">Join us in reducing fashion waste while staying stylish.</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
   );
 }
               </div>
-            </li>
+export default SignUp;
             <li className="flex items-start">
               <div className="flex-shrink-0 p-1">
                 <TruckIcon className="h-6 w-6" />
