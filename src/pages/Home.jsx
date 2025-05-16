@@ -458,6 +458,14 @@ export default function Home() {
               </div>
             </div>
           </div>
+          <div className="mt-10 text-center">
+            <button 
+              onClick={handleRentNow} 
+              className="btn-primary text-white px-8 py-3 text-lg shadow-md hover:shadow-lg transition-shadow"
+            >
+              Browse Collection
+            </button>
+          </div>
         </section>
         
         {/* Stats Section */}
